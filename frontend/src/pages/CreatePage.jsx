@@ -41,26 +41,26 @@ const CreatePage = () => {
         }
     }
     return (
-        <div className="min-h-screen bg-base-200">
+        <div className="min-h-screen bg-black">
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-2xl mx-auto font-mono tracking-wide">
-                    <Link to={"/"} className="btn btn-ghost mb-6">
+                    <Link to={"/"} className="btn btn-ghost bg-black mb-6">
                         <ArrowLeftIcon className="size-5" />
                         Back to Notes
                     </Link>
 
-                    <div className="card bg-base-100">
-                        <div className="card-body">
+                    <div className="card bg-gray-950 rounded-3xl">
+                        <div className="card-body m-2">
                             <h2 className="card-title text-2xl mb-4">Create New Note</h2>
                             <form onSubmit={handleSubmit}>
                                 <div className="form-control mb-4">
                                     <label className="label">
-                                        <span className="label-text">Title</span>
+                                        <span className="text-white font-light">Title</span>
                                     </label>
                                     <input
                                         type="text"
                                         placeholder="Note Title"
-                                        className="block input input-bordered rounded-xl mt-1"
+                                        className="block input input-bordered rounded-xl mt-1 bg-gray-900"
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
                                     />
@@ -68,11 +68,11 @@ const CreatePage = () => {
 
                                 <div className="form-control mb-4">
                                     <label className="label">
-                                        <span className="label-text">Description</span>
+                                        <span className="text-white font-light">Description</span>
                                     </label>
                                     <textarea
                                         placeholder="Write your note here..."
-                                        className="block textarea textarea-bordered h-32 rounded-2xl mt-1"
+                                        className="block textarea textarea-bordered h-32 rounded-2xl mt-1 bg-gray-900"
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                     />

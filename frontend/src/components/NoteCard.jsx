@@ -25,7 +25,7 @@ const NoteCard = ({ note, setNote }) => {
             className="card bg-base-100 hover:shadow-lg transition-all 
             duration-200 border-t-4 border-solid border-[#0077B6]">
 
-            <div className='card-body font-mono tracking-wide'>
+            <div className='card-body bg-gray-950 font-mono tracking-wide'>
                 <h3 className='card-title text-base-content'>{note.title}</h3>
                 <p className='text-base-content/70 line-clamp-3'>{note.description}</p>
                 <div className='card-actions justify-between items-center mt-4'>
