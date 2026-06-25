@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios';
+import api from '../lib/axios';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router';
 import { ArrowLeftIcon, TriangleAlert } from 'lucide-react';
@@ -16,11 +16,12 @@ const CreatePage = () => {
 
         if (!title.trim() || !description.trim()) {
             toast.error("You need to fill out the details properly!")
+            return;
         }
 
         setLoading(true);
         try {
-            await axios.post("http://localhost:5000/api/notes", {
+            await api.post("/notes", {
                 title,
                 description
             })
