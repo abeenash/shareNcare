@@ -1,1 +1,1 @@
-MERN stack. Will upload a video for this after a week.
+MERN stack. Will upload a video for this after a week. For now, Render ma deploy gareko xu. Naya kura sike. Go here -> https://sharencare.onrender.com/. Ekchin 30s - 1 min time laagxa because free tier ho ni ta. 
