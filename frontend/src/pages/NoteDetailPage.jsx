@@ -104,7 +104,7 @@ const NoteDetailPage = () => {
                                 </label>
                                 <textarea
                                     placeholder="Write your note here..."
-                                    className="block mt-1 bg-gray-900 rounded-2xl textarea textare-bordered h-32"
+                                    className="block mt-1 bg-gray-900 rounded-2xl textarea textarea-bordered h-32"
                                     value={note.description}
                                     onChange={(e) => setNote({
                                         ...note,
