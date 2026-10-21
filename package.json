@@ -1,22 +1,20 @@
 {
   "name": "sharencare",
-  "version": "1.0.0",
-  "description": "MERN stack. Will upload a video for this after a week.",
-  "main": "index.js",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
-    "start": "npm run start --prefix backend"
+    "dev:api": "bun run --filter @sharencare/api dev",
+    "dev:web": "bun run --filter @sharencare/web dev",
+    "typecheck": "bun run --filter '*' typecheck",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/abeenash/shareNcare.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/abeenash/shareNcare/issues"
-  },
-  "homepage": "https://github.com/abeenash/shareNcare#readme"
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "typescript": "^7.0.2"
+  }
 }
