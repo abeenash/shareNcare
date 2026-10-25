@@ -6,10 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**",
-      "!backend"
-    ]
+    "includes": ["**", "!backend"]
   },
   "formatter": {
     "indentStyle": "space",
@@ -25,9 +22,16 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "style": { "noProcessEnv": "error" }
     }
   },
+  "overrides": [
+    {
+      "includes": ["apps/api/src/env.ts"],
+      "linter": { "rules": { "style": { "noProcessEnv": "off" } } }
+    }
+  ],
   "assist": {
     "actions": {
       "source": {

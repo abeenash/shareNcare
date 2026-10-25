@@ -10,6 +10,7 @@
     "dev:api": "bun run --filter @sharencare/api dev",
     "dev:web": "bun run --filter @sharencare/web dev",
     "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun run --filter '*' test",
     "check": "biome check .",
     "check:fix": "biome check --write ."
   },
