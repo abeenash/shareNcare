@@ -1,13 +1,20 @@
-import type { ApiErrorBody, ApiErrorCode } from "@sharencare/shared";
+import type { ApiErrorBody, ApiErrorCode, ApiIssue } from "@sharencare/shared";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
+import { ValidationError } from "./lib/validate";
 import { healthRoute } from "./routes/health";
+import { notesRoute } from "./routes/notes";
 
-const errorBody = (code: ApiErrorCode, message: string, id: string): ApiErrorBody => ({
-  error: { code, message, requestId: id },
+const errorBody = (
+  code: ApiErrorCode,
+  message: string,
+  id: string,
+  issues?: ApiIssue[],
+): ApiErrorBody => ({
+  error: { code, message, requestId: id, ...(issues && { issues }) },
 });
 
 export const app = new Hono()
@@ -15,7 +22,8 @@ export const app = new Hono()
   .use(requestId())
   .use(logger())
   .use(secureHeaders())
-  .route("/health", healthRoute);
+  .route("/health", healthRoute)
+  .route("/notes", notesRoute);
 
 app.notFound((c) =>
   c.json(
@@ -25,11 +33,19 @@ app.notFound((c) =>
 );
 
 app.onError((err, c) => {
-  if (err instanceof HTTPException) {
-    return c.json(errorBody("HTTP_ERROR", err.message, c.get("requestId")), err.status);
+  const id = c.get("requestId");
+
+  if (err instanceof ValidationError) {
+    return c.json(errorBody("VALIDATION", err.message, id, err.issues), 400);
   }
-  console.error(`[${c.get("requestId")}]`, err);
-  return c.json(errorBody("INTERNAL", "Something went wrong", c.get("requestId")), 500);
+
+  if (err instanceof HTTPException) {
+    const code: ApiErrorCode = err.status === 404 ? "NOT_FOUND" : "HTTP_ERROR";
+    return c.json(errorBody(code, err.message, c.get("requestId")), err.status);
+  }
+
+  console.error(`[${id}]`, err);
+  return c.json(errorBody("INTERNAL", "Something went wrong", id), 500);
 });
 
 export type AppType = typeof app;

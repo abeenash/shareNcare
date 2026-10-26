@@ -1,3 +1,5 @@
+export * from "./notes";
+
 export const APP_NAME = "shareNcare";
 
 export type HealthResponse = {
@@ -7,12 +9,15 @@ export type HealthResponse = {
   requestId: string;
 };
 
-export type ApiErrorCode = "NOT_FOUND" | "HTTP_ERROR" | "INTERNAL";
+export type ApiErrorCode = "NOT_FOUND" | "VALIDATION" | "HTTP_ERROR" | "INTERNAL";
+
+export type ApiIssue = { path: string; message: string };
 
 export type ApiErrorBody = {
   error: {
     code: ApiErrorCode;
     message: string;
     requestId: string;
+    issues?: ApiIssue[];
   };
 };
