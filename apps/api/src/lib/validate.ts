@@ -12,6 +12,7 @@ export class ValidationError extends Error {
   }
 }
 
+//Bouncer
 export const validate = <Target extends keyof ValidationTargets, Schema extends z.ZodType>(
   target: Target,
   schema: Schema,

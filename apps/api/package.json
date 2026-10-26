@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/types.ts"
+  },
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "start": "bun src/index.ts",
@@ -13,10 +16,13 @@
     "db:studio": "bun --bun drizzle-kit studio"
   },
   "dependencies": {
+    "@hono/bun": "^1.0.1",
     "@hono/zod-validator": "^0.9.1",
     "@sharencare/shared": "workspace:*",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.40.0",
     "drizzle-orm": "^0.45.4",
-    "hono": "^4.13.13",
+    "hono": "^4.13.14",
     "postgres": "^3.4.9",
     "zod": "^4.6.7"
   },

@@ -1,9 +1,15 @@
-import { describe, expect, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import type { ApiErrorBody } from "@sharencare/shared";
 import { testClient } from "hono/testing";
 import { app } from "./app";
+import { db } from "./db";
+import { notes } from "./db/schema";
 
 const client = testClient(app);
+
+beforeEach(async () => {
+  await db.delete(notes);
+});
 
 describe("notes API", () => {
   test("creates a note, trims it, and reads it back", async () => {

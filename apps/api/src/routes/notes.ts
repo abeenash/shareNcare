@@ -5,10 +5,12 @@ import { HTTPException } from "hono/http-exception";
 import { db } from "../db";
 import { notes } from "../db/schema";
 import { validate } from "../lib/validate";
+import { rateLimit } from "../middleware/rate-limit";
 
 const noteNotFound = () => new HTTPException(404, { message: "Note not found" });
 
 export const notesRoute = new Hono()
+  .use(rateLimit)
   .get("/", async (c) => {
     const allNotes = await db.select().from(notes).orderBy(desc(notes.createdAt));
     return c.json(allNotes);

@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!backend", "!apps/api/drizzle"]
+    "includes": ["**", "!apps/api/drizzle"]
   },
   "formatter": {
     "indentStyle": "space",

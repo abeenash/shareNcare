@@ -17,6 +17,11 @@ const errorBody = (
   error: { code, message, requestId: id, ...(issues && { issues }) },
 });
 
+const codeForStatus: Record<number, ApiErrorCode> = {
+  404: "NOT_FOUND",
+  429: "RATE_LIMITED",
+};
+
 export const app = new Hono()
   .basePath("/api")
   .use(requestId())
@@ -40,7 +45,7 @@ app.onError((err, c) => {
   }
 
   if (err instanceof HTTPException) {
-    const code: ApiErrorCode = err.status === 404 ? "NOT_FOUND" : "HTTP_ERROR";
+    const code = codeForStatus[err.status] ?? "HTTP_ERROR";
     return c.json(errorBody(code, err.message, c.get("requestId")), err.status);
   }
 

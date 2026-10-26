@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "bun run --parallel dev:api dev:web",
     "dev:api": "bun run --filter @sharencare/api dev",
     "dev:web": "bun run --filter @sharencare/web dev",
     "typecheck": "bun run --filter '*' typecheck",

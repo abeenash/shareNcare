@@ -8,3 +8,8 @@ const testDb = drizzle(new PGlite(), { schema });
 await migrate(testDb, { migrationsFolder: "./drizzle" });
 
 mock.module("../src/db", () => ({ db: testDb }));
+mock.module("../src/middleware/rate-limit", () => ({
+  rateLimit: async (_c: unknown, next: () => Promise<void>) => {
+    await next();
+  },
+}));
