@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "oven.bun-vscode",
+    "yoavbls.pretty-ts-errors",
+    "usernamehw.errorlens",
+    "bradlc.vscode-tailwindcss",
+    "mikestead.dotenv",
+    "TypeScriptTeam.native-preview"
+  ]
+}

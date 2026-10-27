@@ -1,0 +1,34 @@
+{
+  "name": "@sharencare/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "@sharencare/shared": "workspace:*",
+    "axios": "^1.18.1",
+    "hono": "^4.13.14",
+    "lucide-react": "^1.21.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-hot-toast": "^2.6.0",
+    "react-router": "^8.0.1",
+    "react-spinners": "^0.17.0",
+    "tailwindcss": "^4.3.1"
+  },
+  "devDependencies": {
+    "@sharencare/api": "workspace:*",
+    "@types/bun": "^1.4.4",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "daisyui": "^5.5.23",
+    "vite": "^8.1.0"
+  }
+}
