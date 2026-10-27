@@ -1,32 +1,21 @@
 import { PenSquareIcon, Trash2Icon } from "lucide-react";
 import type { MouseEvent } from "react";
-import toast from "react-hot-toast";
 import { Link } from "react-router";
-import { api, type Note } from "../api-client";
+import type { Note } from "../api-client";
 import { formatDate } from "../lib/utils";
+import { useDeleteNote } from "../note-queries";
 
 type NoteCardProps = {
   note: Note;
-  onDeleted: (id: string) => void;
 };
 
-const NoteCard = ({ note, onDeleted }: NoteCardProps) => {
+const NoteCard = ({ note }: NoteCardProps) => {
+  const deleteNote = useDeleteNote();
+
   const handleDelete = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!window.confirm("Are you sure you want to delete this note?")) return;
-
-    try {
-      const res = await api.notes[":id"].$delete({ param: { id: note.id } });
-      if (!res.ok) {
-        toast.error("Failed to delete the note");
-        return;
-      }
-      toast.success("Your note has been deleted");
-      onDeleted(note.id);
-    } catch (error) {
-      console.error("Error in handleDelete", error);
-      toast.error("Could not reach the server");
-    }
+    deleteNote.mutate(note.id);
   };
 
   return (

@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.3.1",
     "@sharencare/shared": "workspace:*",
-    "axios": "^1.18.1",
+    "@tailwindcss/vite": "^4.3.1",
+    "@tanstack/react-query": "^5.105.0",
     "hono": "^4.13.14",
     "lucide-react": "^1.21.0",
     "react": "^19.2.7",
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@sharencare/api": "workspace:*",
+    "@tanstack/react-query-devtools": "^5.105.0",
     "@types/bun": "^1.4.4",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
