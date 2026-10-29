@@ -10,6 +10,8 @@
     "dev": "bun run --parallel dev:api dev:web",
     "dev:api": "bun run --filter @sharencare/api dev",
     "dev:web": "bun run --filter @sharencare/web dev",
+    "build": "bun run --filter @sharencare/web build",
+    "start": "cd apps/api && bun run start",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun run --filter '*' test",
     "check": "biome check .",
