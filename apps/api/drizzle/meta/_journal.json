@@ -8,6 +8,13 @@
       "when": 1792936049482,
       "tag": "0000_create_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793271136240,
+      "tag": "0001_add_pin_and_trash",
+      "breakpoints": true
     }
   ]
 }

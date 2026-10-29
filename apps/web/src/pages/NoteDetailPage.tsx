@@ -62,7 +62,7 @@ const EditNoteForm = ({ note }: { note: Note }) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this note?")) return;
+    if (!window.confirm("Move this to trash?")) return;
     deleteNote.mutate(note.id);
     navigate("/");
   };

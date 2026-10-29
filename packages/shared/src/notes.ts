@@ -16,3 +16,5 @@ export const NoteInputSchema = z.object({
 export type NoteInput = z.infer<typeof NoteInputSchema>;
 
 export const NoteIdSchema = z.object({ id: z.uuid("That is not a valid note id") });
+
+export const NotePinSchema = z.object({ pinned: z.boolean() });
