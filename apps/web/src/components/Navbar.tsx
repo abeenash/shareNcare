@@ -1,4 +1,4 @@
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { Link } from "react-router";
 
 const Navbar = () => {
@@ -8,6 +8,9 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-primary font-mono tracking-wider">ShareNCare</h1>
           <div className="flex items-center gap-4">
+            <Link to="/trash" className="btn btn-ghost">
+              <Trash2Icon className="size-5" />
+            </Link>
             <Link to={"/create"} className="btn btn-primary">
               <PlusIcon className="size-5" />
               <span className="tracking-wider font-mono">New Note</span>
