@@ -34,13 +34,12 @@ const ConnectGoogle = () => {
   return (
     <button
       type="button"
-      className="btn btn-ghost"
+      className="btn btn-ghost btn-sm justify-start w-full font-normal"
       onClick={() => connect.mutate()}
       disabled={connect.isPending}
-      aria-label="Connect your Google account"
-      title="Connect your Google account"
     >
       <GoogleIcon />
+      {connect.isPending ? "Opening Google..." : "Connect Google"}
     </button>
   );
 };

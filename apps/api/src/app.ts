@@ -4,6 +4,7 @@ import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
+import { timing } from "hono/timing";
 import { auth } from "./auth";
 import { ValidationError } from "./lib/validate";
 import { healthRoute } from "./routes/health";
@@ -27,6 +28,7 @@ const codeForStatus: Record<number, ApiErrorCode> = {
 export const app = new Hono()
   .basePath("/api")
   .use(requestId())
+  .use(timing())
   .use(logger())
   .use(secureHeaders())
   .route("/health", healthRoute)

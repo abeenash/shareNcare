@@ -1,7 +1,53 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes:
-    light --default,
-    dark --prefersdark,
-    business;
+  themes: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "letters";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #0b1220;
+  --color-base-200: #111a2b;
+  --color-base-300: #1c2638;
+  --color-base-content: #ece6da;
+
+  --color-primary: #f08a4b;
+  --color-primary-content: #1a0f08;
+  --color-secondary: #b8402f;
+  --color-secondary-content: #fbeee9;
+  --color-accent: #f08a4b;
+  --color-accent-content: #1a0f08;
+  --color-neutral: #1c2638;
+  --color-neutral-content: #ece6da;
+
+  --color-info: #7aa2d6;
+  --color-info-content: #0b1220;
+  --color-success: #7dbb8a;
+  --color-success-content: #0b1220;
+  --color-warning: #e0a84f;
+  --color-warning-content: #1a0f08;
+  --color-error: #d9604c;
+  --color-error-content: #1a0f08;
+
+  --radius-box: 0.75rem;
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+  --border: 1px;
+}
+
+@theme {
+  --font-serif: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(90% 70% at 100% 100%, rgb(240 138 75 / 0.07), transparent 60%),
+    radial-gradient(80% 60% at 0% 0%, #13223b, transparent 70%), var(--color-base-100);
+  background-attachment: fixed;
 }

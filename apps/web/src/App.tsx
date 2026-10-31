@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import AppLayout from "./components/AppLayout";
 import RequireAuth from "./components/RequireAuth";
 import AuthPage from "./pages/AuthPage";
 import CreatePage from "./pages/CreatePage";
@@ -16,10 +17,12 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<AuthPage />} />
         <Route element={<RequireAuth />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/create" element={<CreatePage />} />
-          <Route path="/note/:id" element={<NoteDetailPage />} />
-          <Route path="/trash" element={<TrashPage />} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/create" element={<CreatePage />} />
+            <Route path="/note/:id" element={<NoteDetailPage />} />
+            <Route path="/trash" element={<TrashPage />} />
+          </Route>
         </Route>
       </Routes>
     </div>
