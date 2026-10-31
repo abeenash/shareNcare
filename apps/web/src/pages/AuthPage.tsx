@@ -57,10 +57,12 @@ const AuthPage = () => {
   const isSignUp = mode === "sign-up";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 font-mono tracking-wide">
-      <div className="card bg-gray-950 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="card bg-base-200 w-full max-w-md">
         <form className="card-body gap-4" onSubmit={handleSubmit}>
-          <h1 className="text-3xl font-bold text-primary text-center">ShareNCare</h1>
+          <h1 className="text-center font-serif text-4xl italic tracking-tight">
+            ShareN<span className="text-primary">Care</span>
+          </h1>
           <h2 className="text-xl text-center">
             {isSignUp ? "Create your account" : "Welcome back"}
           </h2>
@@ -76,10 +78,10 @@ const AuthPage = () => {
           <div className="divider text-base-content/50 text-sm">or use your email</div>
           {isSignUp && (
             <label className="form-control" htmlFor="name">
-              <span className="label text-white font-light">Name</span>
+              <span className="label text-base-content/70">Name</span>
               <input
                 id="name"
-                className="input input-bordered rounded-xl bg-gray-900 w-full"
+                className="input input-bordered rounded-xl bg-base-100 w-full"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -88,11 +90,11 @@ const AuthPage = () => {
           )}
 
           <label className="form-control" htmlFor="email">
-            <span className="label text-white font-light">Email</span>
+            <span className="label text-base-content/70">Email</span>
             <input
               id="email"
               type="email"
-              className="input input-bordered rounded-xl bg-gray-900 w-full"
+              className="input input-bordered rounded-xl bg-base-100 w-full"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -100,11 +102,11 @@ const AuthPage = () => {
           </label>
 
           <label className="form-control" htmlFor="password">
-            <span className="label text-white font-light">Password</span>
+            <span className="label text-base-content/70">Password</span>
             <input
               id="password"
               type="password"
-              className="input input-bordered rounded-xl bg-gray-900 w-full"
+              className="input input-bordered rounded-xl bg-base-100 w-full"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={8}

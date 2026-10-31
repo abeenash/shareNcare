@@ -19,7 +19,7 @@ const NoteDetail = ({ id }: { id: string }) => {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="mx-auto max-w-2xl flex items-center justify-center">
         <Loader />
       </div>
     );
@@ -27,7 +27,7 @@ const NoteDetail = ({ id }: { id: string }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 font-mono">
+      <div className="mx-auto max-w-2xl flex flex-col items-center justify-center gap-4">
         <p>{error.message}</p>
         <Link to="/" className="btn btn-primary">
           Back to Notes
@@ -70,11 +70,11 @@ const EditNoteForm = ({ note }: { note: Note }) => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto font-mono tracking-wide">
+    <div className="mx-auto max-w-2xl">
+      <div className="w-full">
+        <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <Link to={"/"} className="btn btn-ghost hover:bg-black">
+            <Link to={"/"} className="btn btn-ghost">
               <ArrowLeftIcon className="h-5 w-5" />
               Back to Notes
             </Link>
@@ -87,16 +87,16 @@ const EditNoteForm = ({ note }: { note: Note }) => {
             </button>
           </div>
 
-          <div className="card bg-gray-950">
+          <div className="card bg-base-200">
             <div className="card-body">
               <div className="form-control mb-4">
                 <label className="label" htmlFor="title">
-                  <span className="text-white font-light">Title</span>
+                  <span className="text-base-content/70">Title</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Note title"
-                  className="block mt-1 input bg-gray-900 input-bordered rounded-xl"
+                  className="block mt-1 input bg-base-100 input-bordered rounded-xl"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                 />
@@ -104,11 +104,11 @@ const EditNoteForm = ({ note }: { note: Note }) => {
 
               <div className="form-control mb-4">
                 <label className="label" htmlFor="description">
-                  <span className="text-white font-light">Description</span>
+                  <span className="text-base-content/70">Description</span>
                 </label>
                 <textarea
                   placeholder="Write your note here..."
-                  className="block mt-1 bg-gray-900 rounded-2xl textarea textarea-bordered h-32"
+                  className="block mt-1 bg-base-100 rounded-2xl textarea textarea-bordered h-32"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
