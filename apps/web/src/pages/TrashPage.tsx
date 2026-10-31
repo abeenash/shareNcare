@@ -1,5 +1,7 @@
 import { ArrowLeftIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
+import ConfirmModal from "../components/ConfirmModal";
 import Loader from "../components/Loader";
 import { formatDate } from "../lib/utils";
 import { usePurgeNote, useRestoreNote, useTrash } from "../note-queries";
@@ -8,10 +10,11 @@ const TrashPage = () => {
   const { data: trashedNotes, isPending, error } = useTrash();
   const restoreNote = useRestoreNote();
   const purgeNote = usePurgeNote();
+  const [noteToPurge, setNoteToPurge] = useState<string | null>(null);
 
-  const handlePurge = (id: string) => {
-    if (!window.confirm("Delete this note forever? This cannot be undone.")) return;
-    purgeNote.mutate(id);
+  const handlePurge = () => {
+    if (noteToPurge) purgeNote.mutate(noteToPurge);
+    setNoteToPurge(null);
   };
   return (
     <div className="min-h-screen">
@@ -56,7 +59,7 @@ const TrashPage = () => {
                   <button
                     type="button"
                     className="btn btn-sm btn-error btn-outline"
-                    onClick={() => handlePurge(note.id)}
+                    onClick={() => setNoteToPurge(note.id)}
                   >
                     <Trash2Icon className="size-4" />
                     Delete forever
@@ -67,6 +70,15 @@ const TrashPage = () => {
           ))}
         </div>
       </div>
+      <ConfirmModal
+        open={noteToPurge !== null}
+        title="Delete forever?"
+        message="This note will be gone for good. This cannot be undone."
+        confirmLabel="Delete forever"
+        tone="error"
+        onConfirm={handlePurge}
+        onClose={() => setNoteToPurge(null)}
+      />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, Navigate, useNavigate, useParams } from "react-router";
 import type { Note } from "../api-client";
+import ConfirmModal from "../components/ConfirmModal";
 import Loader from "../components/Loader";
 import { useDeleteNote, useNote, useUpdateNote } from "../note-queries";
 
@@ -41,6 +42,7 @@ const NoteDetail = ({ id }: { id: string }) => {
 const EditNoteForm = ({ note }: { note: Note }) => {
   const [title, setTitle] = useState(note.title);
   const [description, setDescription] = useState(note.description);
+  const [confirmingTrash, setConfirmingTrash] = useState(false);
   const updateNote = useUpdateNote(note.id);
   const deleteNote = useDeleteNote();
   const navigate = useNavigate();
@@ -61,8 +63,8 @@ const EditNoteForm = ({ note }: { note: Note }) => {
     });
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("Move this to trash?")) return;
+  const handleDelete = () => {
+    setConfirmingTrash(false);
     deleteNote.mutate(note.id);
     navigate("/");
   };
@@ -79,7 +81,7 @@ const EditNoteForm = ({ note }: { note: Note }) => {
             <button
               type="button"
               className="btn btn-ghost btn-outline btn-error"
-              onClick={handleDelete}
+              onClick={() => setConfirmingTrash(true)}
             >
               <Trash2Icon className="h-5 w-5" />
             </button>
@@ -126,6 +128,15 @@ const EditNoteForm = ({ note }: { note: Note }) => {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        open={confirmingTrash}
+        title="Move to trash?"
+        message="This note will move to the trash. You can restore it from there."
+        confirmLabel="Move to trash"
+        tone="warning"
+        onConfirm={handleDelete}
+        onClose={() => setConfirmingTrash(false)}
+      />
     </div>
   );
 };

@@ -3,6 +3,8 @@ import { type FormEvent, useState } from "react";
 import toast from "react-hot-toast";
 import { Navigate, useNavigate } from "react-router";
 import { authClient } from "../auth-client";
+import GoogleIcon from "../components/GoogleIcon";
+import { useOAuthErrorToast } from "../lib/use-oauth-error-toast";
 
 type Mode = "sign-in" | "sign-up";
 
@@ -14,6 +16,7 @@ const AuthPage = () => {
   const { data: session } = authClient.useSession();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  useOAuthErrorToast();
 
   const submit = useMutation({
     mutationFn: async () => {
@@ -28,6 +31,18 @@ const AuthPage = () => {
     onSuccess: () => {
       queryClient.clear();
       navigate("/");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const google = useMutation({
+    mutationFn: async () => {
+      const result = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+        errorCallbackURL: "/login",
+      });
+      if (result.error) throw new Error(result.error.message ?? "Could not reach Google");
     },
     onError: (error) => toast.error(error.message),
   });
@@ -49,7 +64,16 @@ const AuthPage = () => {
           <h2 className="text-xl text-center">
             {isSignUp ? "Create your account" : "Welcome back"}
           </h2>
-
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={() => google.mutate()}
+            disabled={google.isPending}
+          >
+            <GoogleIcon />
+            {google.isPending ? "Opening Google..." : "Continue with Google"}
+          </button>
+          <div className="divider text-base-content/50 text-sm">or use your email</div>
           {isSignUp && (
             <label className="form-control" htmlFor="name">
               <span className="label text-white font-light">Name</span>

@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { authClient } from "../auth-client";
+import ConnectGoogle from "./ConnectGoogle";
 
 const Navbar = () => {
   const { data: session } = authClient.useSession();
@@ -40,6 +41,7 @@ const Navbar = () => {
             >
               <LogOutIcon className="size-5" />
             </button>
+            <ConnectGoogle />
           </div>
         </div>
       </div>
