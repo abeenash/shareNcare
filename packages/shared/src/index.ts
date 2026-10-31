@@ -9,7 +9,13 @@ export type HealthResponse = {
   requestId: string;
 };
 
-export type ApiErrorCode = "NOT_FOUND" | "VALIDATION" | "RATE_LIMITED" | "HTTP_ERROR" | "INTERNAL";
+export type ApiErrorCode =
+  | "UNAUTHORIZED"
+  | "NOT_FOUND"
+  | "VALIDATION"
+  | "RATE_LIMITED"
+  | "HTTP_ERROR"
+  | "INTERNAL";
 
 export type ApiIssue = { path: string; message: string };
 
