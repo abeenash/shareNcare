@@ -6,6 +6,10 @@ const EnvSchema = z.object({
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
   UPSTASH_REDIS_REST_URL: z.url({ protocol: /^https$/ }),
   UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+  BETTER_AUTH_SECRET: z.string().min(32, "Must be at least 32 characters"),
+  BETTER_AUTH_URL: z.url(),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

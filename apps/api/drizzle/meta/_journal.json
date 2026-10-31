@@ -15,6 +15,13 @@
       "when": 1793271136240,
       "tag": "0001_add_pin_and_trash",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793292738860,
+      "tag": "0002_auth",
+      "breakpoints": true
     }
   ]
 }

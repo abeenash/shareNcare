@@ -4,6 +4,8 @@ import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
+import { timing } from "hono/timing";
+import { auth } from "./auth";
 import { ValidationError } from "./lib/validate";
 import { healthRoute } from "./routes/health";
 import { notesRoute } from "./routes/notes";
@@ -20,15 +22,19 @@ const errorBody = (
 const codeForStatus: Record<number, ApiErrorCode> = {
   404: "NOT_FOUND",
   429: "RATE_LIMITED",
+  401: "UNAUTHORIZED",
 };
 
 export const app = new Hono()
   .basePath("/api")
   .use(requestId())
+  .use(timing())
   .use(logger())
   .use(secureHeaders())
   .route("/health", healthRoute)
   .route("/notes", notesRoute);
+
+app.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 
 app.notFound((c) =>
   c.json(

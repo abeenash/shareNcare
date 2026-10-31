@@ -1,4 +1,7 @@
 import { Route, Routes } from "react-router";
+import AppLayout from "./components/AppLayout";
+import RequireAuth from "./components/RequireAuth";
+import AuthPage from "./pages/AuthPage";
 import CreatePage from "./pages/CreatePage";
 import HomePage from "./pages/HomePage";
 import NoteDetailPage from "./pages/NoteDetailPage";
@@ -12,10 +15,15 @@ const App = () => {
       [background:radial-gradient(125%_125%_at_50%_10%,#000_60%,#023E8A_100%)]"
       />
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/create" element={<CreatePage />} />
-        <Route path="/note/:id" element={<NoteDetailPage />} />
-        <Route path="/trash" element={<TrashPage />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route element={<RequireAuth />}>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/create" element={<CreatePage />} />
+            <Route path="/note/:id" element={<NoteDetailPage />} />
+            <Route path="/trash" element={<TrashPage />} />
+          </Route>
+        </Route>
       </Routes>
     </div>
   );
