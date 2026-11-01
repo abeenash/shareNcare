@@ -13,6 +13,9 @@ export const auth = betterAuth({
     encryptOAuthTokens: true,
     accountLinking: { updateUserInfoOnLink: true },
   },
+  advanced: {
+    ipAddress: { ipAddressHeaders: ["true-client-ip"] },
+  },
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,

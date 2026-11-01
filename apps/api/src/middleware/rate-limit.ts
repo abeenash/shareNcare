@@ -18,8 +18,8 @@ const ratelimit = new Ratelimit({
 
 const getClientIp = (c: Context): string => {
   if (env.NODE_ENV === "production") {
-    const forwarded = c.req.header("x-forwarded-for")?.split(",")[0]?.trim();
-    if (forwarded) return forwarded;
+    const clientIp = c.req.header("true-client-ip")?.trim();
+    if (clientIp) return clientIp;
   }
   return getConnInfo(c).remote.address ?? "unknown";
 };
