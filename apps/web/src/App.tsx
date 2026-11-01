@@ -5,6 +5,7 @@ import AuthPage from "./pages/AuthPage";
 import CreatePage from "./pages/CreatePage";
 import HomePage from "./pages/HomePage";
 import NoteDetailPage from "./pages/NoteDetailPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import TrashPage from "./pages/TrashPage";
 
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
       />
       <Routes>
         <Route path="/login" element={<AuthPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
