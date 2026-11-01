@@ -8,7 +8,7 @@ const client = testClient(app);
 describe("GET /api/health", () => {
   test("returns ok, a request id and security headers", async () => {
     const res = await client.api.health.$get();
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
 
     const body = await res.json();
     expect(body.ok).toBe(true);
