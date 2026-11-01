@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
 import toast from "react-hot-toast";
-import { Navigate, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
 import { authClient } from "../auth-client";
 import GoogleIcon from "../components/GoogleIcon";
 import { useOAuthErrorToast } from "../lib/use-oauth-error-toast";
@@ -125,6 +125,10 @@ const AuthPage = () => {
           >
             {isSignUp ? "Already have an account? Sign in" : "New here? Create an account"}
           </button>
+
+          <Link to="/privacy" className="text-center text-xs text-base-content/50 hover:underline">
+            Privacy policy
+          </Link>
         </form>
       </div>
     </div>
