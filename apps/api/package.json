@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "db:generate": "bun --bun drizzle-kit generate",
-    "db:migrate": "bun --bun drizzle-kit migrate",
+    "db:migrate": "bun scripts/migrate.ts",
     "db:studio": "bun --bun drizzle-kit studio"
   },
   "dependencies": {
