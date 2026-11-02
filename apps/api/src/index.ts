@@ -11,6 +11,10 @@ const isApiRequest = (request: Request) => new URL(request.url).pathname.startsW
 
 console.log(`🚀 shareNcare -> http://localhost:${env.PORT} (${env.NODE_ENV})`);
 
+if (env.RATE_LIMIT === "off") {
+  console.warn("⚠️ Rate limiting is OFF. That is only meant for end-to-end tests.");
+}
+
 export default {
   port: env.PORT,
   fetch: (request: Request, server: unknown) => {

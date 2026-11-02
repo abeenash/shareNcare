@@ -25,6 +25,7 @@ const getClientIp = (c: Context): string => {
 };
 
 export const rateLimit = createMiddleware(async (c, next) => {
+  if (env.RATE_LIMIT === "off") return next();
   startTime(c, "ratelimit", "Upstash rate limit");
   const result = await ratelimit.limit(getClientIp(c)).catch((error: unknown) => {
     console.warn("Rate limiter unavailable, letting the request through:", error);

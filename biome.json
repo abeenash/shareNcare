@@ -31,7 +31,7 @@
   },
   "overrides": [
     {
-      "includes": ["apps/api/src/env.ts"],
+      "includes": ["apps/api/src/env.ts", "e2e/playwright.config.ts"],
       "linter": { "rules": { "style": { "noProcessEnv": "off" } } }
     }
   ],
