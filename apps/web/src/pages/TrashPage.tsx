@@ -34,7 +34,7 @@ const TrashPage = () => {
 
       <div className="space-y-4">
         {trashedNotes?.map((note) => (
-          <div key={note.id} className="card border border-base-content/10 bg-base-200">
+          <article key={note.id} className="card border border-base-content/10 bg-base-200">
             <div className="card-body gap-3 p-6">
               <span className="font-mono text-xs tracking-widest text-base-content/50">
                 {note.deletedAt && `MOVED HERE ${formatPostmark(new Date(note.deletedAt))}`}
@@ -60,7 +60,7 @@ const TrashPage = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 

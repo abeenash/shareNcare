@@ -114,7 +114,10 @@ export function useCreateNote() {
       if (!res.ok) throw await toApiError(res);
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: noteKeys.all }),
+    onSuccess: (note) => {
+      queryClient.setQueryData(noteKeys.detail(note.id), note);
+      return queryClient.invalidateQueries({ queryKey: noteKeys.all });
+    },
   });
 }
 
