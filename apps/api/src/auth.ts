@@ -16,6 +16,7 @@ export const auth = betterAuth({
   advanced: {
     ipAddress: { ipAddressHeaders: ["true-client-ip"] },
   },
+  rateLimit: { enabled: env.NODE_ENV === "production" && env.RATE_LIMIT === "on" },
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,

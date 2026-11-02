@@ -10,6 +10,7 @@ const EnvSchema = z.object({
   BETTER_AUTH_URL: z.url(),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
+  RATE_LIMIT: z.enum(["on", "off"]).default("on"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
