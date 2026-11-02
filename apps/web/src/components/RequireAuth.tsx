@@ -7,7 +7,7 @@ const RequireAuth = () => {
 
   if (isPending) {
     return (
-      <div className="min-h-screen flex itemc-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader />
       </div>
     );

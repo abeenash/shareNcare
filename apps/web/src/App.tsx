@@ -4,7 +4,8 @@ import RequireAuth from "./components/RequireAuth";
 import AuthPage from "./pages/AuthPage";
 import CreatePage from "./pages/CreatePage";
 import HomePage from "./pages/HomePage";
-import NoteDetailPage from "./pages/NoteDetailPage";
+import NoteEditPage from "./pages/NoteEditPage";
+import NoteReadPage from "./pages/NoteReadPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TrashPage from "./pages/TrashPage";
 
@@ -22,7 +23,8 @@ const App = () => {
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/create" element={<CreatePage />} />
-            <Route path="/note/:id" element={<NoteDetailPage />} />
+            <Route path="/note/:id" element={<NoteReadPage />} />
+            <Route path="/note/:id/edit" element={<NoteEditPage />} />
             <Route path="/trash" element={<TrashPage />} />
           </Route>
         </Route>
