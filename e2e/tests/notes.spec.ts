@@ -41,7 +41,7 @@ test("the pencil on a card opens the editor", async ({ page }) => {
   await expect(page.getByRole("heading", { name: `${title} (edited)` })).toBeVisible();
 });
 
-test("a trashed note can be restores", async ({ page }) => {
+test("a trashed note can be restored", async ({ page }) => {
   const title = uniqueTitle("Trash me");
   await createNote(page, title);
 
