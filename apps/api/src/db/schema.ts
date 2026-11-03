@@ -11,6 +11,8 @@ export const notes = pgTable(
     title: text("title").notNull(),
     description: text("description").notNull(),
     pinned: boolean("pinned").notNull().default(false),
+    recipient: text("recipient"),
+    shareToken: text("share_token").unique(),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })

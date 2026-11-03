@@ -24,10 +24,11 @@ const NoteForm = ({
 }: NoteFormProps) => {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
+  const [recipient, setRecipient] = useState(initial?.recipient ?? "");
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = NoteInputSchema.safeParse({ title, description });
+    const result = NoteInputSchema.safeParse({ title, description, recipient });
     if (!result.success) {
       toast.error(result.error.issues[0]?.message ?? "Please check your note");
       return;
@@ -54,6 +55,24 @@ const NoteForm = ({
         <span className="font-mono text-xs uppercase tracking-widest text-base-content/60">
           {eyebrow}
         </span>
+
+        <div className="mt-6 flex items-center gap-2 font-mono text-xs uppercase tracking-widest">
+          <label htmlFor="note-recipient" className="text-base-content/50">
+            To
+          </label>
+          <span aria-hidden="true" className="text-base-content/50">
+            ·
+          </span>
+          <input
+            id="note-recipient"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            placeholder="Just for you"
+            maxLength={60}
+            autoComplete="off"
+            className="w-full bg-transparent uppercase tracking-widest caret-primary outline-none placeholder:text-base-content/30"
+          />
+        </div>
 
         <label htmlFor="note-title" className="sr-only">
           Title

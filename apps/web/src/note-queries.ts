@@ -28,6 +28,13 @@ export const noteKeys = {
 const byPinnedThenNewest = (a: Note, b: Note) =>
   Number(b.pinned) - Number(a.pinned) || b.createdAt.localeCompare(a.createdAt);
 
+function cacheNote(queryClient: QueryClient, note: Note) {
+  queryClient.setQueryData(noteKeys.detail(note.id), note);
+  queryClient.setQueryData<Note[]>(noteKeys.all, (notes) =>
+    notes?.map((n) => (n.id === note.id ? note : n)),
+  );
+}
+
 async function removeFromList(queryClient: QueryClient, queryKey: readonly string[], id: string) {
   await queryClient.cancelQueries({ queryKey });
   const previous = queryClient.getQueryData<Note[]>(queryKey);
@@ -129,12 +136,7 @@ export function useUpdateNote(id: string) {
       if (!res.ok) throw await toApiError(res);
       return res.json();
     },
-    onSuccess: (updatedNote) => {
-      queryClient.setQueryData(noteKeys.detail(id), updatedNote);
-      queryClient.setQueryData<Note[]>(noteKeys.all, (notes) =>
-        notes?.map((n) => (n.id === updatedNote.id ? updatedNote : n)),
-      );
-    },
+    onSuccess: (updatedNote) => cacheNote(queryClient, updatedNote),
   });
 }
 
@@ -236,5 +238,45 @@ export function usePurgeNote() {
       toast.error(error.message);
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: noteKeys.trash }),
+  });
+}
+
+export function useShareNote(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await api.notes[":id"].share.$post({ param: { id } });
+      if (!res.ok) throw await toApiError(res);
+      return res.json();
+    },
+    onSuccess: (note) => cacheNote(queryClient, note),
+    onError: (error) => toast.error(error.message),
+  });
+}
+
+export function useUnshareNote(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await api.notes[":id"].share.$delete({ param: { id } });
+      if (!res.ok) throw await toApiError(res);
+      return res.json();
+    },
+    onSuccess: (note) => {
+      cacheNote(queryClient, note);
+      toast.success("Sharing stopped. The old link no longer works.");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+}
+
+export function useSharedLetter(token: string) {
+  return useQuery({
+    queryKey: ["shared", token],
+    queryFn: async () => {
+      const res = await api.shared[":token"].$get({ param: { token } });
+      if (!res.ok) throw await toApiError(res);
+      return res.json();
+    },
   });
 }

@@ -2,7 +2,7 @@ import { PencilLineIcon, PinIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Note } from "../api-client";
-import { formatPostmark } from "../lib/utils";
+import { addressedTo, formatPostmark } from "../lib/utils";
 import { useDeleteNote, useTogglePin } from "../note-queries";
 import ConfirmModal from "./ConfirmModal";
 
@@ -48,7 +48,7 @@ const NoteCard = ({ note }: NoteCardProps) => {
 
           <div className="mt-2 flex items-center justify-between border-t border-dashed border-base-content/15 pt-4">
             <span className="font-mono text-xs uppercase tracking-widest text-base-content/50">
-              Just for you
+              {addressedTo(note.recipient)}
             </span>
             <div className="relative z-10 flex items-center gap-1">
               <Link

@@ -18,3 +18,7 @@ export function greetingFor(date: Date): string {
   if (hour < 18) return "Good afternoon";
   return "Good evening";
 }
+
+export function addressedTo(recipient: string | null): string {
+  return recipient ? `To · ${recipient}` : "Just for you";
+}
