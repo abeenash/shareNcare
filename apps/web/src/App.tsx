@@ -7,6 +7,7 @@ import HomePage from "./pages/HomePage";
 import NoteEditPage from "./pages/NoteEditPage";
 import NoteReadPage from "./pages/NoteReadPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import SharedLetterPage from "./pages/SharedLetterPage";
 import TrashPage from "./pages/TrashPage";
 
 const App = () => {
@@ -19,6 +20,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<AuthPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/s/:token" element={<SharedLetterPage />} />
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />

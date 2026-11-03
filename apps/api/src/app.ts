@@ -9,6 +9,7 @@ import { auth } from "./auth";
 import { ValidationError } from "./lib/validate";
 import { healthRoute } from "./routes/health";
 import { notesRoute } from "./routes/notes";
+import { sharedRoute } from "./routes/shared";
 
 const errorBody = (
   code: ApiErrorCode,
@@ -32,7 +33,8 @@ export const app = new Hono()
   .use(logger())
   .use(secureHeaders())
   .route("/health", healthRoute)
-  .route("/notes", notesRoute);
+  .route("/notes", notesRoute)
+  .route("/shared", sharedRoute);
 
 app.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 

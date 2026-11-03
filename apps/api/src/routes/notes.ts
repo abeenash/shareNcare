@@ -1,9 +1,10 @@
 import { NoteIdSchema, NoteInputSchema, NotePinSchema } from "@sharencare/shared";
-import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "../db";
 import { notes } from "../db/schema";
+import { newShareToken } from "../lib/share-token";
 import { validate } from "../lib/validate";
 import { rateLimit } from "../middleware/rate-limit";
 import { requireUser } from "../middleware/require-user";
@@ -107,6 +108,30 @@ export const notesRoute = new Hono()
       .returning();
     if (!restored) throw noteNotFound();
     return c.json(restored);
+  })
+  //Share note
+  .post("/:id/share", validate("param", NoteIdSchema), async (c) => {
+    const user = c.get("user");
+    const { id } = c.req.valid("param");
+    const [note] = await db
+      .update(notes)
+      .set({ shareToken: sql`coalesce(${notes.shareToken},${newShareToken()})` })
+      .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash))
+      .returning();
+    if (!note) throw noteNotFound();
+    return c.json(note);
+  })
+  //Delete the shared note
+  .delete("/:id/share", validate("param", NoteIdSchema), async (c) => {
+    const user = c.get("user");
+    const { id } = c.req.valid("param");
+    const [note] = await db
+      .update(notes)
+      .set({ shareToken: null })
+      .where(and(eq(notes.id, id), ownedBy(user.id)))
+      .returning();
+    if (!note) throw noteNotFound();
+    return c.json(note);
   })
   //Permanent delete
   .delete("/:id/permanent", validate("param", NoteIdSchema), async (c) => {

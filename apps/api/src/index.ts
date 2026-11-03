@@ -2,8 +2,10 @@ import { serveStatic } from "@hono/bun";
 import { Hono } from "hono";
 import { app } from "./app";
 import { env } from "./env";
+import { sharedLetterPage } from "./link-preview";
 
 const website = new Hono()
+  .get("/s/:token", async (c) => c.html(await sharedLetterPage(c.req.param("token"))))
   .use(serveStatic({ root: "../web/dist" }))
   .get("*", serveStatic({ path: "../web/dist/index.html" }));
 
