@@ -5,6 +5,7 @@ import type { Note } from "../api-client";
 import { addressedTo, formatPostmark } from "../lib/utils";
 import { useDeleteNote, useTogglePin } from "../note-queries";
 import ConfirmModal from "./ConfirmModal";
+import RichText from "./RichText";
 
 type NoteCardProps = {
   note: Note;
@@ -44,7 +45,9 @@ const NoteCard = ({ note }: NoteCardProps) => {
               {note.title}
             </Link>
           </h3>
-          <p className="line-clamp-3 text-base-content/70">{note.description}</p>
+          <p className="line-clamp-3 text-base-content/70">
+            <RichText text={note.description} />
+          </p>
 
           <div className="mt-2 flex items-center justify-between border-t border-dashed border-base-content/15 pt-4">
             <span className="font-mono text-xs uppercase tracking-widest text-base-content/50">

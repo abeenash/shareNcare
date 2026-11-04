@@ -60,3 +60,13 @@ test("a trashed note can be restored", async ({ page }) => {
     .click();
   await expect(cardFor(page, title)).toBeVisible();
 });
+
+test("text between backticks shows as code", async ({ page }) => {
+  const title = uniqueTitle("Commands");
+  await createNote(page, title, "Run `bun run e2e` before every push.");
+
+  await page.goto("/");
+  await cardFor(page, title).getByRole("link", { name: title }).click();
+
+  await expect(page.getByRole("article").locator("code")).toHaveText("bun run e2e");
+});

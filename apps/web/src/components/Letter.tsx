@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { formatPostmark } from "../lib/utils";
+import RichText from "./RichText";
 
 type LetterProps = {
   date: Date;
@@ -18,7 +19,7 @@ const Letter = ({ date, title, body, footer }: LetterProps) => {
         <h1 className="mt-4 font-serif text-3xl leading-tight md:text-4xl">{title}</h1>
         <div className="my-8 border-t border-dashed border-base-content/15" />
         <p className="whitespace-pre-wrap wrap-break-word text-lg leading-8 text-base-content/85">
-          {body}
+          <RichText text={body} />
         </p>
         <div className="mt-10 border-t border-dashed border-base-content/15 pt-5">{footer}</div>
       </div>
