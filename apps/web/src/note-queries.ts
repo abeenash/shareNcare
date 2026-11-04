@@ -1,4 +1,4 @@
-import type { ApiErrorBody, ApiErrorCode, NoteInput } from "@sharencare/shared";
+import type { ApiErrorBody, ApiErrorCode, NoteInput, ShareOptions } from "@sharencare/shared";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { api, type Note } from "./api-client";
@@ -244,8 +244,8 @@ export function usePurgeNote() {
 export function useShareNote(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
-      const res = await api.notes[":id"].share.$post({ param: { id } });
+    mutationFn: async (options: ShareOptions) => {
+      const res = await api.notes[":id"].share.$post({ param: { id }, json: options });
       if (!res.ok) throw await toApiError(res);
       return res.json();
     },
@@ -278,5 +278,17 @@ export function useSharedLetter(token: string) {
       if (!res.ok) throw await toApiError(res);
       return res.json();
     },
+  });
+}
+
+export function useOpenLetter(token: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await api.shared[":token"].open.$post({ param: { token } });
+      if (!res.ok) throw await toApiError(res);
+      return res.json();
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["shared", token] }),
   });
 }

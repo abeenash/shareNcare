@@ -23,7 +23,7 @@ async function aliceWrites(recipient?: string) {
 }
 
 async function shareLink(id: string) {
-  const res = await client.api.notes[":id"].share.$post({ param: { id } });
+  const res = await client.api.notes[":id"].share.$post({ param: { id }, json: {} });
   expect(res.status).toBe(200);
   const { shareToken } = await res.json();
   if (!shareToken) throw new Error("Expected a share token");
@@ -64,13 +64,17 @@ describe("share links", () => {
       "description",
       "from",
       "recipient",
+      "state",
       "title",
     ]);
   });
 
   test("only the owner can share a note", async () => {
     const note = await aliceWrites();
-    const res = await client.api.notes[":id"].share.$post({ param: { id: note.id } }, asBob);
+    const res = await client.api.notes[":id"].share.$post(
+      { param: { id: note.id }, json: {} },
+      asBob,
+    );
     expect(res.status).toBe(404);
   });
 

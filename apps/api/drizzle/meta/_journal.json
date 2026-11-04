@@ -29,6 +29,13 @@
       "when": 1793719058756,
       "tag": "0003_share_links",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793795282269,
+      "tag": "0004_burn_and_seal",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { PencilLineIcon, PinIcon, Trash2Icon } from "lucide-react";
+import { FlameIcon, LockIcon, PencilLineIcon, PinIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Note } from "../api-client";
@@ -46,21 +46,35 @@ const NoteCard = ({ note }: NoteCardProps) => {
             </Link>
           </h3>
           <p className="line-clamp-3 text-base-content/70">
-            <RichText text={note.description} />
+            {note.burnedAt ? (
+              <span className="italic">The words are gone.</span>
+            ) : (
+              <RichText text={note.description} />
+            )}
           </p>
 
           <div className="mt-2 flex items-center justify-between border-t border-dashed border-base-content/15 pt-4">
-            <span className="font-mono text-xs uppercase tracking-widest text-base-content/50">
-              {addressedTo(note.recipient)}
+            <span className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-base-content/50">
+              {note.burnedAt
+                ? `Burned · ${formatPostmark(new Date(note.burnedAt))}`
+                : addressedTo(note.recipient)}
+              {note.burnAfterReading && (
+                <FlameIcon className="size-3.5 text-primary" aria-label="Burns after reading" />
+              )}
+              {note.unsealAt && !note.burnedAt && (
+                <LockIcon className="size-3.5 text-primary" aria-label="Sealed" />
+              )}
             </span>
             <div className="relative z-10 flex items-center gap-1">
-              <Link
-                to={`/note/${note.id}/edit`}
-                className="btn btn-ghost btn-xs btn-square text-base-content/40 hover:text-base-content"
-                aria-label="Edit note"
-              >
-                <PencilLineIcon className="size-4" />
-              </Link>
+              {!note.burnedAt && (
+                <Link
+                  to={`/note/${note.id}/edit`}
+                  className="btn btn-ghost btn-xs btn-square text-base-content/40 hover:text-base-content"
+                  aria-label="Edit note"
+                >
+                  <PencilLineIcon className="size-4" />
+                </Link>
+              )}
               <button
                 type="button"
                 className="btn btn-ghost btn-xs btn-square text-base-content/40 hover:text-error"
