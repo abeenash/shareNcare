@@ -6,7 +6,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import Letter from "../components/Letter";
 import NoteGate from "../components/NoteGate";
 import ShareDialog from "../components/ShareDialog";
-import { addressedTo } from "../lib/utils";
+import { addressedTo, formatPostmark } from "../lib/utils";
 import { useDeleteNote } from "../note-queries";
 
 const NoteReadPage = () => <NoteGate>{(note) => <ReadNote note={note} />}</NoteGate>;
@@ -30,18 +30,22 @@ const ReadNote = ({ note }: { note: Note }) => {
           Your desk
         </Link>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            className={`btn btn-ghost btn-sm ${note.shareToken ? "text-primary" : ""}`}
-            onClick={() => setSharing(true)}
-          >
-            <Link2Icon className="size-4" />
-            {note.shareToken ? "Shared" : "Share"}
-          </button>
-          <Link to={`/note/${note.id}/edit`} className="btn btn-ghost btn-sm">
-            <PencilLineIcon className="size-4" />
-            Edit
-          </Link>
+          {!note.burnedAt && (
+            <>
+              <button
+                type="button"
+                className={`btn btn-ghost btn-sm ${note.shareToken ? "text-primary" : ""}`}
+                onClick={() => setSharing(true)}
+              >
+                <Link2Icon className="size-4" />
+                {note.shareToken ? "Shared" : "Share"}
+              </button>
+              <Link to={`/note/${note.id}/edit`} className="btn btn-ghost btn-sm">
+                <PencilLineIcon className="size-4" />
+                Edit
+              </Link>
+            </>
+          )}
           <button
             type="button"
             className="btn btn-ghost btn-sm btn-square text-base-content/60 hover:text-error"
@@ -56,7 +60,11 @@ const ReadNote = ({ note }: { note: Note }) => {
       <Letter
         date={new Date(note.createdAt)}
         title={note.title}
-        body={note.description}
+        body={
+          note.burnedAt
+            ? `This letter was opened and burned on ${formatPostmark(new Date(note.burnedAt))}. Its words are gone, even from here.`
+            : note.description
+        }
         footer={
           <span className="font-mono text-xs uppercase tracking-widest text-base-content/50">
             {addressedTo(note.recipient)}

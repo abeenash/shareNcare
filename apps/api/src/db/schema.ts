@@ -13,6 +13,9 @@ export const notes = pgTable(
     pinned: boolean("pinned").notNull().default(false),
     recipient: text("recipient"),
     shareToken: text("share_token").unique(),
+    burnAfterReading: boolean("burn_after_reading").notNull().default(false),
+    burnedAt: timestamp("burned_at", { withTimezone: true }),
+    unsealAt: timestamp("unseal_at", { withTimezone: true }),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })

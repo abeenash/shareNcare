@@ -1,5 +1,5 @@
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import type { Note } from "../api-client";
 import NoteForm from "../components/NoteForm";
 import NoteGate from "../components/NoteGate";
@@ -11,6 +11,7 @@ const NoteEditPage = () => <NoteGate>{(note) => <EditNote key={note.id} note={no
 const EditNote = ({ note }: { note: Note }) => {
   const updateNote = useUpdateNote(note.id);
   const navigate = useNavigate();
+  if (note.burnedAt) return <Navigate to={`/note/${note.id}`} replace />;
 
   return (
     <div className="mx-auto max-w-3xl">

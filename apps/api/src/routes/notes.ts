@@ -1,4 +1,9 @@
-import { NoteIdSchema, NoteInputSchema, NotePinSchema } from "@sharencare/shared";
+import {
+  NoteIdSchema,
+  NoteInputSchema,
+  NotePinSchema,
+  ShareOptionsSchema,
+} from "@sharencare/shared";
 import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -13,6 +18,7 @@ const noteNotFound = () => new HTTPException(404, { message: "Note not found" })
 
 const notInTrash = isNull(notes.deletedAt);
 const inTrash = isNotNull(notes.deletedAt);
+const notBurned = isNull(notes.burnedAt);
 
 const ownedBy = (userId: string) => eq(notes.userId, userId);
 
@@ -64,7 +70,7 @@ export const notesRoute = new Hono()
     const [note] = await db
       .update(notes)
       .set(input)
-      .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash))
+      .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned))
       .returning();
     if (!note) throw noteNotFound();
     return c.json(note);
@@ -110,24 +116,30 @@ export const notesRoute = new Hono()
     return c.json(restored);
   })
   //Share note
-  .post("/:id/share", validate("param", NoteIdSchema), async (c) => {
-    const user = c.get("user");
-    const { id } = c.req.valid("param");
-    const [note] = await db
-      .update(notes)
-      .set({ shareToken: sql`coalesce(${notes.shareToken},${newShareToken()})` })
-      .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash))
-      .returning();
-    if (!note) throw noteNotFound();
-    return c.json(note);
-  })
+  .post(
+    "/:id/share",
+    validate("param", NoteIdSchema),
+    validate("json", ShareOptionsSchema),
+    async (c) => {
+      const user = c.get("user");
+      const { id } = c.req.valid("param");
+      const options = c.req.valid("json");
+      const [note] = await db
+        .update(notes)
+        .set({ ...options, shareToken: sql`coalesce(${notes.shareToken},${newShareToken()})` })
+        .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned))
+        .returning();
+      if (!note) throw noteNotFound();
+      return c.json(note);
+    },
+  )
   //Delete the shared note
   .delete("/:id/share", validate("param", NoteIdSchema), async (c) => {
     const user = c.get("user");
     const { id } = c.req.valid("param");
     const [note] = await db
       .update(notes)
-      .set({ shareToken: null })
+      .set({ shareToken: null, burnAfterReading: false, unsealAt: null })
       .where(and(eq(notes.id, id), ownedBy(user.id)))
       .returning();
     if (!note) throw noteNotFound();

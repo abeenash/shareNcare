@@ -11,7 +11,7 @@ const PrivacyPage = () => {
 
       <h1 className="mt-10 font-serif text-4xl">Privacy policy</h1>
       <p className="mt-2 font-mono text-xs uppercase tracking-widest text-base-content/60">
-        Last updated 1 Nov 2026
+        Last updated 4 Nov 2026
       </p>
 
       <div className="mt-10 space-y-8 leading-relaxed text-base-content/80">
@@ -49,6 +49,11 @@ const PrivacyPage = () => {
           <p>
             The app runs on Render. Data is stored with Neon (PostgreSQL) and Upstash (rate-limit
             counters), in the United States.
+          </p>
+          <p className="mt-3">
+            When a burn-after-reading letter is opened, its words are erased from the app for good.
+            Neon keeps a short restore history of the database for recovery, so an erased letter can
+            remain there for a limited time before it is gone from that history too.
           </p>
         </section>
 

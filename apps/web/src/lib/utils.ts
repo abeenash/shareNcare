@@ -22,3 +22,9 @@ export function greetingFor(date: Date): string {
 export function addressedTo(recipient: string | null): string {
   return recipient ? `To · ${recipient}` : "Just for you";
 }
+
+export function tomorrowForDateInput(): string {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toLocaleDateString("en-CA");
+}

@@ -28,3 +28,14 @@ export const NotePinSchema = z.object({ pinned: z.boolean() });
 export const ShareTokenSchema = z.object({
   token: z.string().regex(/^[\w-]{22}$/, "That is not a valid share link"),
 });
+
+export const ShareOptionsSchema = z.object({
+  burnAfterReading: z.boolean().default(false),
+  unsealAt: z.iso
+    .datetime("That is not a valid date")
+    .nullish()
+    .transform((date) => (date ? new Date(date) : null))
+    .refine((date) => !date || date > new Date(), "A seal date must be in the future"),
+});
+
+export type ShareOptions = z.input<typeof ShareOptionsSchema>;
