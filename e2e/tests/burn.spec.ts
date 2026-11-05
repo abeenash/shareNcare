@@ -86,7 +86,7 @@ test("a sealed letter shows the envelope and never sends the words", async ({ pa
   expect(raw).not.toContain(title);
 });
 
-test("the writer chooses burn and seal in the share dialog", async ({ page }) => {
+test("the writer seals a letter down to the minute with the clock", async ({ page }) => {
   const title = uniqueTitle("Birthday");
   await page.goto("/create");
   await page.getByLabel("Title").fill(title);
@@ -96,9 +96,59 @@ test("the writer chooses burn and seal in the share dialog", async ({ page }) =>
   await page.getByRole("button", { name: "Share", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Burn after reading").check();
-  await dialog.getByLabel("Seal until").fill("2099-12-25");
+  await dialog.getByLabel("Seal until a moment").check();
+
+  // A keyboard walks the whole clock: Enter moves to the next dial.
+  await dialog.getByRole("slider", { name: "Day" }).press("Home");
+  await dialog.getByRole("slider", { name: "Day" }).press("Enter");
+  await dialog.getByRole("slider", { name: "Month" }).press("End");
+  await dialog.getByRole("slider", { name: "Month" }).press("Enter");
+  await dialog.getByRole("slider", { name: "Year" }).press("ArrowRight");
+  await dialog.getByRole("slider", { name: "Year" }).press("Enter");
+  await dialog.getByRole("button", { name: "PM" }).click();
+  await dialog.getByRole("slider", { name: "Hour" }).press("End");
+  await dialog.getByRole("slider", { name: "Hour" }).press("Enter");
+  await dialog.getByRole("slider", { name: "Minute" }).press("Home");
+  for (let i = 0; i < 50; i++)
+    await dialog.getByRole("slider", { name: "Minute" }).press("ArrowRight");
+
+  await expect(dialog.getByText(/Opens 01 DEC \d{4} · 11:50/)).toBeVisible();
+
   await dialog.getByRole("button", { name: "Create link" }).click();
 
   await expect(dialog.getByText("Burns after one reading")).toBeVisible();
-  await expect(dialog.getByText("Sealed until 25 DEC 2099")).toBeVisible();
+  await expect(dialog.getByText(/Sealed until 01 DEC \d{4} · 11:50/)).toBeVisible();
+});
+
+test("tapping the dial picks a value and moves to the next one", async ({ page }) => {
+  // The dial spins in when it appears, so this test asks for less motion to measure it still.
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/create");
+  await page.getByLabel("Title").fill(uniqueTitle("Tap"));
+  await page.getByLabel("Description").fill(WORDS);
+  await page.getByRole("button", { name: "Save note" }).click();
+
+  await page.getByRole("button", { name: "Share", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Seal until a moment").check();
+
+  // The top of the dial is "1" on the day dial, like 12 on a clock.
+  const dial = dialog.locator("svg[viewBox='0 0 280 280']");
+  const box = await dial.boundingBox();
+  if (!box) throw new Error("Expected the dial to be on screen");
+  await dial.click({ position: { x: box.width / 2, y: 28 } });
+
+  await expect(dialog.getByRole("slider", { name: "Month" })).toBeAttached();
+  await expect(dialog.getByRole("button", { name: "Change day" })).toHaveText("1");
+});
+
+test("a sealed letter opens by itself when the moment arrives", async ({ page, browser }) => {
+  const soon = new Date(Date.now() + 10_000).toISOString();
+  const { token } = await shareLetter(page, { unsealAt: soon });
+  const stranger = await asStranger(browser);
+
+  await stranger.goto(`/s/${token}`);
+  await expect(stranger.getByRole("heading", { name: "This letter is sealed" })).toBeVisible();
+
+  await expect(stranger.getByText(WORDS)).toBeVisible({ timeout: 20_000 });
 });

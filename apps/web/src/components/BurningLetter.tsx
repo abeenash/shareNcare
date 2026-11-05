@@ -7,7 +7,7 @@ type BurningLetterProps = {
   onBurned: () => void;
 };
 
-const BURN_SECONDS = 2.8;
+const BURN_SECONDS = 2;
 
 const EMBERS = Array.from({ length: 18 }, (_, id) => ({
   id,
@@ -55,7 +55,7 @@ const BurningLetter = ({ children, onBurned }: BurningLetterProps) => {
                 style={{ left: ember.left, width: ember.size, height: ember.size }}
                 initial={{ y: 0, x: 0, opacity: 0 }}
                 animate={{ y: -420, x: ember.drift, opacity: [0, 1, 0] }}
-                transition={{ duration: 1.4, delay: ember.delay, ease: "easeOut" }}
+                transition={{ duration: 1, delay: ember.delay, ease: "easeOut" }}
               />
             ))}
           </>

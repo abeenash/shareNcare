@@ -106,13 +106,13 @@ describe("sealed letters", () => {
     expect(JSON.stringify(body)).not.toContain("secret");
   });
 
-  test("a seal date in the past is refused", async () => {
+  test("a sealed burn letter cannot be opened early", async () => {
     const created = await client.api.notes.$post({ json: { title: "A", description: "B" } });
     const { id } = await created.json();
 
     const res = await client.api.notes[":id"].share.$post({
       param: { id },
-      json: { unsealAt: "2020-01-01T00:00:00:000Z" },
+      json: { unsealAt: "2020-01-01T00:00:00.000Z" },
     });
 
     expect(res.status).toBe(400);

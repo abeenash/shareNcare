@@ -6,7 +6,7 @@ import Envelope from "../components/Envelope";
 import Letter from "../components/Letter";
 import Loader from "../components/Loader";
 import Logo from "../components/Logo";
-import { addressedTo, formatPostmark } from "../lib/utils";
+import { addressedTo, formatMoment, formatPostmark } from "../lib/utils";
 import { useOpenLetter, useSharedLetter } from "../note-queries";
 
 const LetterFooter = ({ recipient, from }: { recipient: string | null; from: string }) => (
@@ -41,7 +41,7 @@ const SharedLetter = ({ token }: { token: string }) => {
     );
   }
 
-  const envelope = { recipient: letter?.recipient, from: letter?.from };
+  const envelope = { recipient: letter.recipient, from: letter.from };
 
   if (burnedHere) {
     return (
@@ -84,7 +84,7 @@ const SharedLetter = ({ token }: { token: string }) => {
           <p>
             It opens on{" "}
             <span className="font-mono text-sm text-primary">
-              {formatPostmark(new Date(letter.unsealAt))}
+              {formatMoment(new Date(letter.unsealAt))}
             </span>
             . Nobody can open it before then.
           </p>

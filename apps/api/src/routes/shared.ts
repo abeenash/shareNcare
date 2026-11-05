@@ -29,7 +29,7 @@ export const sharedRoute = new Hono()
         recipient: notes.recipient,
         createdAt: notes.createdAt,
         senderName: user.name,
-        burnedAfterReading: notes.burnAfterReading,
+        burnAfterReading: notes.burnAfterReading,
         burnedAt: notes.burnedAt,
         unsealAt: notes.unsealAt,
       })
@@ -52,7 +52,7 @@ export const sharedRoute = new Hono()
       return c.json({ state: "sealed" as const, ...envelope, unsealAt: letter.unsealAt });
     }
 
-    if (letter.burnedAfterReading) {
+    if (letter.burnAfterReading) {
       return c.json({ state: "ready-to-burn" as const, ...envelope });
     }
     return c.json({
