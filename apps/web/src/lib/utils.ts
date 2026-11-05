@@ -23,8 +23,8 @@ export function addressedTo(recipient: string | null): string {
   return recipient ? `To · ${recipient}` : "Just for you";
 }
 
-export function tomorrowForDateInput(): string {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toLocaleDateString("en-CA");
+// One exact moment, shown in the clock of whoever is looking at it.
+export function formatMoment(date: Date): string {
+  const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return `${formatPostmark(date)} · ${time}`;
 }

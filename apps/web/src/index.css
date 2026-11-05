@@ -39,6 +39,14 @@
 }
 
 @theme {
+  --animate-dial-in: dial-in 350ms ease-out;
+
+  @keyframes dial-in {
+    from {
+      opacity: 0;
+      transform: rotate(-60deg) scale(0.85);
+    }
+  }
   --font-serif: "Fraunces Variable", ui-serif, Georgia, serif;
   --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;

@@ -278,6 +278,11 @@ export function useSharedLetter(token: string) {
       if (!res.ok) throw await toApiError(res);
       return res.json();
     },
+    refetchInterval: ({ state }) => {
+      if (state.data?.state !== "sealed") return false;
+      const msLeft = new Date(state.data.unsealAt).getTime() - Date.now();
+      return Math.min(Math.max(msLeft + 500, 1000), 60_000);
+    },
   });
 }
 

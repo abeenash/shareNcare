@@ -2,8 +2,9 @@ import { CopyIcon, FlameIcon, LockIcon, SendIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import type { Note } from "../api-client";
-import { formatPostmark, tomorrowForDateInput } from "../lib/utils";
+import { formatMoment } from "../lib/utils";
 import { useShareNote, useUnshareNote } from "../note-queries";
+import SealClock from "./SealClock";
 
 type ShareDialogProps = {
   note: Note;
@@ -16,7 +17,8 @@ const ShareDialog = ({ note, open, onClose }: ShareDialogProps) => {
   const shareNote = useShareNote(note.id);
   const unshareNote = useUnshareNote(note.id);
   const [burnAfterReading, setBurnAfterReading] = useState(false);
-  const [sealDate, setSealDate] = useState("");
+  const [sealing, setSealing] = useState(false);
+  const [sealAt, setSealAt] = useState<Date | null>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -31,7 +33,7 @@ const ShareDialog = ({ note, open, onClose }: ShareDialogProps) => {
   const createLink = () => {
     shareNote.mutate({
       burnAfterReading,
-      unsealAt: sealDate ? new Date(`${sealDate}T00:00:00`).toISOString() : null,
+      unsealAt: sealing && sealAt ? sealAt.toISOString() : null,
     });
   };
 
@@ -64,7 +66,7 @@ const ShareDialog = ({ note, open, onClose }: ShareDialogProps) => {
             {note.unsealAt && (
               <p className="flex items-center gap-2 pb-2 text-sm text-primary">
                 <LockIcon className="size-4" />
-                Sealed until {formatPostmark(new Date(note.unsealAt))}.
+                Sealed until {formatMoment(new Date(note.unsealAt))}.
               </p>
             )}
             <div className="join w-full">
@@ -123,19 +125,31 @@ const ShareDialog = ({ note, open, onClose }: ShareDialogProps) => {
                   </span>
                 </span>
               </label>
-              <label className="block">
-                <span className="block">Seal until</span>
-                <span className="block text-sm text-base-content/60">
-                  Optional. Nobody can read it before this date.
-                </span>
+              <label className="flex cursor-pointer items-start gap-3">
                 <input
-                  type="date"
-                  className="input mt-2 w-full bg-base-100"
-                  min={tomorrowForDateInput()}
-                  value={sealDate}
-                  onChange={(e) => setSealDate(e.target.value)}
+                  type="checkbox"
+                  className="toggle toggle-primary toggle-sm mt-0.5"
+                  checked={sealing}
+                  onChange={(e) => setSealing(e.target.checked)}
                 />
+                <span>
+                  <span className="block">Seal until a moment</span>
+                  <span className="block text-sm text-base-content/60">
+                    Nobody can read it before the day and time you choose.
+                  </span>
+                </span>
               </label>
+              {sealing && (
+                <>
+                  <SealClock onChange={setSealAt} />
+                  {sealAt && (
+                    <p className="flex items-center justify-center gap-2 text-center text-sm text-primary">
+                      <LockIcon className="size-4 shrink-0" />
+                      Opens {formatMoment(sealAt)}
+                    </p>
+                  )}
+                </>
+              )}
             </div>
             <div className="modal-action">
               <button type="button" className="btn btn-ghost" onClick={onClose}>
