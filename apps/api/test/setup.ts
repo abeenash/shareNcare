@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import type { Context, Next } from "hono";
 import * as schema from "../src/db/schema";
+import { fakePhotos } from "./fake-photos";
 
 const testDb = drizzle(new PGlite(), { schema });
 await migrate(testDb, { migrationsFolder: "./drizzle" });
@@ -15,6 +16,8 @@ await testDb.insert(schema.user).values([
 ]);
 
 mock.module("../src/db", () => ({ db: testDb }));
+
+mock.module("../src/lib/photos", () => ({ photos: fakePhotos }));
 
 mock.module("../src/middleware/rate-limit", () => ({
   rateLimit: async (_c: Context, next: Next) => {

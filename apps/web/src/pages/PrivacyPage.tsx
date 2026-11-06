@@ -11,7 +11,7 @@ const PrivacyPage = () => {
 
       <h1 className="mt-10 font-serif text-4xl">Privacy policy</h1>
       <p className="mt-2 font-mono text-xs uppercase tracking-widest text-base-content/60">
-        Last updated 4 Nov 2026
+        Last updated 6 Nov 2026
       </p>
 
       <div className="mt-10 space-y-8 leading-relaxed text-base-content/80">
@@ -49,6 +49,12 @@ const PrivacyPage = () => {
           <p>
             The app runs on Render. Data is stored with Neon (PostgreSQL) and Upstash (rate-limit
             counters), in the United States.
+          </p>
+          <p className="mt-3">
+            Photos you add to a letter are shrunk in your browser, which also removes hidden camera
+            details such as location. They are stored privately on Cloudflare R2, and only people
+            who can read the letter get a short-lived link to them. Deleting a letter or photo
+            removes the file.
           </p>
           <p className="mt-3">
             When a burn-after-reading letter is opened, its words are erased from the app for good.

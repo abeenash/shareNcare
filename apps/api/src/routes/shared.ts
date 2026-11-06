@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "../db";
 import { notes, user } from "../db/schema";
+import { photos } from "../lib/photos";
 import { validate } from "../lib/validate";
 import { rateLimit } from "../middleware/rate-limit";
 
@@ -32,6 +33,7 @@ export const sharedRoute = new Hono()
         burnAfterReading: notes.burnAfterReading,
         burnedAt: notes.burnedAt,
         unsealAt: notes.unsealAt,
+        photoKey: notes.photoKey,
       })
       .from(notes)
       .innerJoin(user, eq(notes.userId, user.id))
@@ -61,6 +63,7 @@ export const sharedRoute = new Hono()
       title: letter.title,
       description: letter.description,
       createdAt: letter.createdAt,
+      photoUrl: letter.photoKey ? photos.viewUrl(letter.photoKey) : null,
     });
   })
 
@@ -76,18 +79,28 @@ export const sharedRoute = new Hono()
           title: notes.title,
           description: notes.description,
           createdAt: notes.createdAt,
+          photoKey: notes.photoKey,
         });
       if (!claimed) return null;
 
-      await tx.update(notes).set({ description: "" }).where(eq(notes.id, claimed.id));
-      return claimed;
+      //if storage fails here, the error undoes the claim, so the letter is not lost.
+      const photo = claimed.photoKey ? await photos.readAsDataUrl(claimed.photoKey) : null;
+
+      await tx
+        .update(notes)
+        .set({ description: "", photoKey: null })
+        .where(eq(notes.id, claimed.id));
+      return { ...claimed, photo };
     });
 
     if (!letter) throw letterNotHere();
+
+    if (letter.photoKey) await photos.removeAllFor(letter.id);
 
     return c.json({
       title: letter.title,
       description: letter.description,
       createdAt: letter.createdAt,
+      photo: letter.photo,
     });
   });

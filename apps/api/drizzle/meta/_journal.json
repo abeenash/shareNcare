@@ -36,6 +36,13 @@
       "when": 1793795282269,
       "tag": "0004_burn_and_seal",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793952009276,
+      "tag": "0005_photos",
+      "breakpoints": true
     }
   ]
 }

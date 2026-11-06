@@ -15,6 +15,9 @@ if (databaseHost !== "localhost" && databaseHost !== "127.0.0.1") {
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
+  workers: 2,
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   reporter: isCI ? [["github"], ["html", { open: "never" }]] : "list",
@@ -47,6 +50,10 @@ export default defineConfig({
       UPSTASH_REDIS_REST_URL: "https://not-used-in-e2e.invalid",
       UPSTASH_REDIS_REST_TOKEN: "not-used-in-e2e",
       RATE_LIMIT: "off",
+      STORAGE_ENDPOINT: "http://localhost:9000",
+      STORAGE_BUCKET: "sharencare-e2e",
+      STORAGE_ACCESS_KEY_ID: "e2e-access-key",
+      STORAGE_SECRET_ACCESS_KEY: "e2e-secret-key-not-real",
     },
   },
 });

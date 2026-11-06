@@ -39,3 +39,13 @@ export const ShareOptionsSchema = z.object({
 });
 
 export type ShareOptions = z.input<typeof ShareOptionsSchema>;
+
+export const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
+
+export const PhotoUploadRequestSchema = z.object({
+  size: z.number().int().positive().max(MAX_PHOTO_BYTES, "That photo is too large"),
+});
+
+export const PhotoAttachSchema = z.object({
+  key: z.string().regex(/^notes\/[\w-]+\/[\w-]+$/, "That is not a photo key"),
+});

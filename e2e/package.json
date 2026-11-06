@@ -7,10 +7,13 @@
     "e2e:ui": "playwright test --ui",
     "db:up": "docker run --rm -d --name sharencare-e2e-db -e POSTGRES_PASSWORD=postgres -p 5433:5432 postgres:18-alpine",
     "db:down": "docker stop sharencare-e2e-db",
+    "storage:up": "docker run --rm -d --name sharencare-e2e-storage -e RUSTFS_ACCESS_KEY=e2e-access-key -e RUSTFS_SECRET_KEY=e2e-secret-key-not-real -e \"RUSTFS_CORS_ALLOWED_ORIGINS=*\" -p 9000:9000 rustfs/rustfs:1.0.4 && bun scripts/make-bucket.ts",
+    "storage:down": "docker stop sharencare-e2e-storage",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "@types/node": "^24"
+    "@types/node": "^24",
+    "aws4fetch": "^1.0.20"
   }
 }

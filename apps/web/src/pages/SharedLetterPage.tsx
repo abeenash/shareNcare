@@ -58,6 +58,7 @@ const SharedLetter = ({ token }: { token: string }) => {
           date={new Date(openLetter.data.createdAt)}
           title={openLetter.data.title}
           body={openLetter.data.description}
+          photoUrl={openLetter.data.photo}
           footer={<LetterFooter {...envelope} />}
         />
       </BurningLetter>
@@ -71,6 +72,7 @@ const SharedLetter = ({ token }: { token: string }) => {
           date={new Date(letter.createdAt)}
           title={letter.title}
           body={letter.description}
+          photoUrl={letter.photoUrl}
           footer={<LetterFooter {...envelope} />}
         />
       );
