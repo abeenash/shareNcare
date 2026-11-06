@@ -11,6 +11,11 @@ const EnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
   RATE_LIMIT: z.enum(["on", "off"]).default("on"),
+  STORAGE_ENDPOINT: z.url(),
+  STORAGE_BUCKET: z.string().min(1),
+  STORAGE_ACCESS_KEY_ID: z.string().min(1),
+  STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
+  STORAGE_REGION: z.string().default("auto"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

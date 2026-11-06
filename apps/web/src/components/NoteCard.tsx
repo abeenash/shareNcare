@@ -1,4 +1,4 @@
-import { FlameIcon, LockIcon, PencilLineIcon, PinIcon, Trash2Icon } from "lucide-react";
+import { CameraIcon, FlameIcon, LockIcon, PencilLineIcon, PinIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Note } from "../api-client";
@@ -58,6 +58,9 @@ const NoteCard = ({ note }: NoteCardProps) => {
               {note.burnedAt
                 ? `Burned · ${formatPostmark(new Date(note.burnedAt))}`
                 : addressedTo(note.recipient)}
+              {note.photoKey && (
+                <CameraIcon className="size-3.5 text-primary" aria-label="Has a photo" />
+              )}
               {note.burnAfterReading && (
                 <FlameIcon className="size-3.5 text-primary" aria-label="Burns after reading" />
               )}

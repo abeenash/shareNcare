@@ -63,6 +63,7 @@ describe("share links", () => {
       "createdAt",
       "description",
       "from",
+      "photoUrl",
       "recipient",
       "state",
       "title",

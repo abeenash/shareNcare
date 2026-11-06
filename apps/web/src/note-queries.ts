@@ -2,6 +2,7 @@ import type { ApiErrorBody, ApiErrorCode, NoteInput, ShareOptions } from "@share
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { api, type Note } from "./api-client";
+import { shrinkPhoto } from "./lib/shrink-photo";
 
 export class ApiError extends Error {
   status: number;
@@ -295,5 +296,61 @@ export function useOpenLetter(token: string) {
       return res.json();
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["shared", token] }),
+  });
+}
+
+export function useNotePhoto(note: Note) {
+  return useQuery({
+    queryKey: ["photo", note.photoKey],
+    enabled: Boolean(note.photoKey),
+    staleTime: 10 * 60 * 1000,
+    refetchInterval: 10 * 60 * 1000,
+    queryFn: async () => {
+      const res = await api.notes[":id"].photo.$get({ param: { id: note.id } });
+      if (!res.ok) throw await toApiError(res);
+      return res.json();
+    },
+  });
+}
+
+export function useAddPhoto(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const photo = await shrinkPhoto(file);
+
+      const slip = await api.notes[":id"].photo["upload-url"].$post({
+        param: { id },
+        json: { size: photo.size },
+      });
+      if (!slip.ok) throw await toApiError(slip);
+      const { key, uploadUrl } = await slip.json();
+
+      const upload = await fetch(uploadUrl, {
+        method: "PUT",
+        body: photo,
+        headers: { "Content-Type": "image/jpeg" },
+      });
+      if (!upload.ok) throw new Error("The photo could not be uploaded. Please try again.");
+
+      const attached = await api.notes[":id"].photo.$put({ param: { id }, json: { key } });
+      if (!attached.ok) throw await toApiError(attached);
+      return attached.json();
+    },
+    onSuccess: (note) => cacheNote(queryClient, note),
+    onError: (error) => toast.error(error.message),
+  });
+}
+
+export function useRemovePhoto(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await api.notes[":id"].photo.$delete({ param: { id } });
+      if (!res.ok) throw await toApiError(res);
+      return res.json();
+    },
+    onSuccess: (note) => cacheNote(queryClient, note),
+    onError: (error) => toast.error(error.message),
   });
 }

@@ -7,9 +7,11 @@ type LetterProps = {
   title: string;
   body: string;
   footer: ReactNode;
+  photoUrl?: string | null | undefined;
+  photoAction?: ReactNode;
 };
 
-const Letter = ({ date, title, body, footer }: LetterProps) => {
+const Letter = ({ date, title, body, footer, photoUrl, photoAction }: LetterProps) => {
   return (
     <article className="card border border-base-content/10 bg-base-200">
       <div className="card-body gap-0 p-7 md:p-12">
@@ -18,6 +20,16 @@ const Letter = ({ date, title, body, footer }: LetterProps) => {
         </span>
         <h1 className="mt-4 font-serif text-3xl leading-tight md:text-4xl">{title}</h1>
         <div className="my-8 border-t border-dashed border-base-content/15" />
+        {photoUrl && (
+          <figure className="mb-8 flex flex-col items-center gap-3">
+            <img
+              src={photoUrl}
+              alt="Enclosed with this letter"
+              className="max-h-128 w-auto -rotate-1 border-8 border-base-content shadow-xl motion-reduce:rotate-0"
+            />
+            {photoAction}
+          </figure>
+        )}
         <p className="whitespace-pre-wrap wrap-break-word text-lg leading-8 text-base-content/85">
           <RichText text={body} />
         </p>

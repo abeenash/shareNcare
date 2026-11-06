@@ -1,7 +1,10 @@
 import {
+  MAX_PHOTO_BYTES,
   NoteIdSchema,
   NoteInputSchema,
   NotePinSchema,
+  PhotoAttachSchema,
+  PhotoUploadRequestSchema,
   ShareOptionsSchema,
 } from "@sharencare/shared";
 import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
@@ -9,12 +12,15 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "../db";
 import { notes } from "../db/schema";
+import { photos } from "../lib/photos";
 import { newShareToken } from "../lib/share-token";
 import { validate } from "../lib/validate";
 import { rateLimit } from "../middleware/rate-limit";
 import { requireUser } from "../middleware/require-user";
 
 const noteNotFound = () => new HTTPException(404, { message: "Note not found" });
+
+const badPhoto = (message: string) => new HTTPException(400, { message });
 
 const notInTrash = isNull(notes.deletedAt);
 const inTrash = isNotNull(notes.deletedAt);
@@ -145,6 +151,81 @@ export const notesRoute = new Hono()
     if (!note) throw noteNotFound();
     return c.json(note);
   })
+  //Ask for a permission slip to upload a photo
+  .post(
+    "/:id/photo/upload-url",
+    validate("param", NoteIdSchema),
+    validate("json", PhotoUploadRequestSchema),
+    async (c) => {
+      const user = c.get("user");
+      const { id } = c.req.valid("param");
+      const [note] = await db
+        .select({ id: notes.id })
+        .from(notes)
+        .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned));
+      if (!note) throw noteNotFound();
+
+      const key = `notes/${note.id}/${crypto.randomUUID()}`;
+      return c.json({ key, uploadUrl: photos.uploadUrl(key) });
+    },
+  )
+  //Check what arrived, then attach it to the note
+  .put(
+    "/:id/photo",
+    validate("param", NoteIdSchema),
+    validate("json", PhotoAttachSchema),
+    async (c) => {
+      const user = c.get("user");
+      const { id } = c.req.valid("param");
+      const { key } = c.req.valid("json");
+      if (!key.startsWith(`notes/${id}/`)) throw badPhoto("That photo belongs to another letter");
+
+      const [current] = await db
+        .select({ photoKey: notes.photoKey })
+        .from(notes)
+        .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned));
+      if (!current) throw noteNotFound();
+
+      const arrived = await photos.inspect(key);
+      if (!arrived) throw badPhoto("That photo never finished uploading");
+      if (!arrived.isJpeg || arrived.size > MAX_PHOTO_BYTES) {
+        await photos.remove(key);
+        throw badPhoto("That file can't be used as a photo");
+      }
+
+      const [note] = await db
+        .update(notes)
+        .set({ photoKey: key })
+        .where(eq(notes.id, id))
+        .returning();
+      if (!note) throw noteNotFound();
+
+      if (current.photoKey) await photos.remove(current.photoKey);
+      return c.json(note);
+    },
+  )
+  .get("/:id/photo", validate("param", NoteIdSchema), async (c) => {
+    const user = c.get("user");
+    const { id } = c.req.valid("param");
+    const [note] = await db
+      .select({ photoKey: notes.photoKey })
+      .from(notes)
+      .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash));
+    if (!note?.photoKey) throw noteNotFound();
+    return c.json({ url: photos.viewUrl(note.photoKey) });
+  })
+  .delete("/:id/photo", validate("param", NoteIdSchema), async (c) => {
+    const user = c.get("user");
+    const { id } = c.req.valid("param");
+    const [note] = await db
+      .update(notes)
+      .set({ photoKey: null })
+      .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned))
+      .returning();
+    if (!note) throw noteNotFound();
+    await photos.removeAllFor(id);
+    return c.json(note);
+  })
   //Permanent delete
   .delete("/:id/permanent", validate("param", NoteIdSchema), async (c) => {
     const user = c.get("user");
@@ -154,5 +235,6 @@ export const notesRoute = new Hono()
       .where(and(eq(notes.id, id), ownedBy(user.id), inTrash))
       .returning({ id: notes.id });
     if (!deleted) throw noteNotFound();
+    await photos.removeAllFor(deleted.id);
     return c.json(deleted);
   });

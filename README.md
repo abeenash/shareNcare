@@ -16,8 +16,9 @@
 - **Feels instant:** optimistic updates with TanStack Query
 - **Protected API:** per-IP rate limiting with Upstash Redis, validated input with Zod
 - **Measurable:** every API response carries a `Server-Timing` header
+- **Letters worth sending:** share links, burn-after-reading, sealed letters, and private photos on Cloudflare R2
 
-**Coming next:** share links, burn-after-reading notes, sealed time-capsule notes, and care boards.
+**Coming next:** care boards.
 
 ## Tech stack
 
@@ -74,6 +75,7 @@ cp apps/api/.env.example apps/api/.env
 | `BETTER_AUTH_SECRET` | Random string, at least 32 characters |
 | `BETTER_AUTH_URL` | The URL you open in the browser (`http://localhost:5173` in development) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | From Google Cloud Console → Credentials |
+| `STORAGE_ENDPOINT` / `STORAGE_BUCKET` / `STORAGE_ACCESS_KEY_ID` / `STORAGE_SECRET_ACCESS_KEY` | Cloudflare R2 endpoint, bucket and API token, for photos |
 
 Generate a secret:
 

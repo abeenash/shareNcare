@@ -16,6 +16,7 @@ export const notes = pgTable(
     burnAfterReading: boolean("burn_after_reading").notNull().default(false),
     burnedAt: timestamp("burned_at", { withTimezone: true }),
     unsealAt: timestamp("unseal_at", { withTimezone: true }),
+    photoKey: text("photo_key"),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
