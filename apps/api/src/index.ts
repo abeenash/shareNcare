@@ -19,6 +19,7 @@ if (env.RATE_LIMIT === "off") {
 
 export default {
   port: env.PORT,
+  idleTimeout: 180,
   fetch: (request: Request, server: unknown) => {
     if (env.NODE_ENV === "production" && !isApiRequest(request)) {
       return website.fetch(request, server);

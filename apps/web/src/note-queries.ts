@@ -242,6 +242,26 @@ export function usePurgeNote() {
   });
 }
 
+export function useEmptyTrash() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await api.notes.trash.$delete();
+      if (!res.ok) throw await toApiError(res);
+      return res.json();
+    },
+    onSuccess: ({ failed }) => {
+      if (failed > 0) {
+        toast.error(`${failed} could not be deleted. They are still in the trash, so try again.`);
+      } else {
+        toast.success("Trash emptied");
+      }
+    },
+    onError: (error) => toast.error(error.message),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: noteKeys.trash }),
+  });
+}
+
 export function useShareNote(id: string) {
   const queryClient = useQueryClient();
   return useMutation({

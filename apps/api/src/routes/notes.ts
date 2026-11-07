@@ -12,6 +12,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "../db";
 import { notes } from "../db/schema";
+import { destroyNote, destroyNotes } from "../lib/destroy-notes";
 import { photos } from "../lib/photos";
 import { newShareToken } from "../lib/share-token";
 import { validate } from "../lib/validate";
@@ -48,6 +49,16 @@ export const notesRoute = new Hono()
       .where(and(ownedBy(user.id), inTrash))
       .orderBy(desc(notes.deletedAt));
     return c.json(trashedNotes);
+  })
+  .delete("/trash", async (c) => {
+    const user = c.get("user");
+    const mineInTrash = and(ownedBy(user.id), inTrash);
+    const trashed = await db.select({ id: notes.id }).from(notes).where(mineInTrash);
+    const result = await destroyNotes(
+      trashed.map((note) => note.id),
+      mineInTrash,
+    );
+    return c.json(result);
   })
   .get("/:id", validate("param", NoteIdSchema), async (c) => {
     const user = c.get("user");
@@ -230,11 +241,7 @@ export const notesRoute = new Hono()
   .delete("/:id/permanent", validate("param", NoteIdSchema), async (c) => {
     const user = c.get("user");
     const { id } = c.req.valid("param");
-    const [deleted] = await db
-      .delete(notes)
-      .where(and(eq(notes.id, id), ownedBy(user.id), inTrash))
-      .returning({ id: notes.id });
-    if (!deleted) throw noteNotFound();
-    await photos.removeAllFor(deleted.id);
-    return c.json(deleted);
+    const destroyed = await destroyNote(id, and(ownedBy(user.id), inTrash));
+    if (!destroyed) throw noteNotFound();
+    return c.json({ id });
   });
