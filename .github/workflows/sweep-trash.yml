@@ -1,0 +1,26 @@
+name: Sweep old trash
+
+on: 
+    schedule:
+        #Every day at 03:17 UTC. Off the hour, because Github is busiest on the hour.
+        - cron: "17 3 * * *"
+    workflow_dispatch:
+
+permissions: {}
+
+jobs:
+    sweep:
+        name: Delete letters past their 30 days
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+        steps:
+            - name: Ask the app to sweep
+              env:
+                  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+              run: >-
+                  curl --fail-with-body --silent --show-error
+                  --retry 5 --retry-all-errors --retry-delay 30
+                  --max-time 180
+                  --request POST
+                  --header "Authorization: Bearer $CRON_SECRET"
+                  https://sharencare.onrender.com/api/internal/sweep-trash

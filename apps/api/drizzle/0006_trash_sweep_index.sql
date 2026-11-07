@@ -1,0 +1,1 @@
+CREATE INDEX "notes_in_trash_idx" ON "notes" USING btree ("deleted_at") WHERE "notes"."deleted_at" is not null;

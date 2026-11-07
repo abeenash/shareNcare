@@ -16,6 +16,7 @@ const EnvSchema = z.object({
   STORAGE_ACCESS_KEY_ID: z.string().min(1),
   STORAGE_SECRET_ACCESS_KEY: z.string().min(1),
   STORAGE_REGION: z.string().default("auto"),
+  CRON_SECRET: z.string().min(32, "Must be at least 32 characters"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

@@ -4,7 +4,10 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import type { Context, Next } from "hono";
 import * as schema from "../src/db/schema";
+import { TEST_CRON_SECRET } from "./cron-secret";
 import { fakePhotos } from "./fake-photos";
+
+mock.module("../src/env", () => ({ env: { CRON_SECRET: TEST_CRON_SECRET } }));
 
 const testDb = drizzle(new PGlite(), { schema });
 await migrate(testDb, { migrationsFolder: "./drizzle" });

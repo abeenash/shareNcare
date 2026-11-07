@@ -8,6 +8,7 @@ import { timing } from "hono/timing";
 import { auth } from "./auth";
 import { ValidationError } from "./lib/validate";
 import { healthRoute } from "./routes/health";
+import { internalRoute } from "./routes/internal";
 import { notesRoute } from "./routes/notes";
 import { sharedRoute } from "./routes/shared";
 
@@ -34,7 +35,8 @@ export const app = new Hono()
   .use(secureHeaders())
   .route("/health", healthRoute)
   .route("/notes", notesRoute)
-  .route("/shared", sharedRoute);
+  .route("/shared", sharedRoute)
+  .route("/internal", internalRoute);
 
 app.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 

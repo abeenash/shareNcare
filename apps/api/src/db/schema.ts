@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { boolean, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
 
@@ -24,7 +25,10 @@ export const notes = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [index("notes_user_id_idx").on(table.userId)],
+  (table) => [
+    index("notes_user_id_idx").on(table.userId),
+    index("notes_in_trash_idx").on(table.deletedAt).where(sql`${table.deletedAt} is not null`),
+  ],
 );
 
 export type Note = typeof notes.$inferSelect;

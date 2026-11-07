@@ -1,11 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
+import { cronSecret, databaseUrl } from "./tests/e2e-env";
 
 const PORT = 4000;
 const baseURL = `http://localhost:${PORT}`;
 const isCI = Boolean(process.env.CI);
-
-const databaseUrl =
-  process.env.E2E_DATABASE_URL ?? "postgres://postgres:postgres@localhost:5433/postgres";
 
 const databaseHost = new URL(databaseUrl).hostname;
 if (databaseHost !== "localhost" && databaseHost !== "127.0.0.1") {
@@ -54,6 +52,7 @@ export default defineConfig({
       STORAGE_BUCKET: "sharencare-e2e",
       STORAGE_ACCESS_KEY_ID: "e2e-access-key",
       STORAGE_SECRET_ACCESS_KEY: "e2e-secret-key-not-real",
+      CRON_SECRET: cronSecret,
     },
   },
 });
