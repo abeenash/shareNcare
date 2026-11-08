@@ -32,6 +32,7 @@ const BoardPage = () => {
   const deleteNote = useDeleteBoardNote(id);
   const [confirming, setConfirming] = useState<"new-link" | "delete-board" | null>(null);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
+  const [switchedTo, setSwitchedTo] = useState<boolean | null>(null);
 
   if (isPending) return <Loader />;
   if (error) {
@@ -46,7 +47,7 @@ const BoardPage = () => {
   }
 
   const link = `${window.location.origin}/b/${board.token}`;
-  const isOpen = board.closedAt === null;
+  const isOpen = switchedTo ?? board.closedAt === null;
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(link);
@@ -89,7 +90,11 @@ const BoardPage = () => {
                 className="toggle toggle-primary toggle-sm"
                 checked={isOpen}
                 disabled={setOpen.isPending}
-                onChange={(e) => setOpen.mutate(e.target.checked)}
+                onChange={(e) => {
+                  const open = e.target.checked;
+                  setSwitchedTo(open);
+                  setOpen.mutate(open, { onSettled: () => setSwitchedTo(null) });
+                }}
               />
               Taking new notes
             </label>
