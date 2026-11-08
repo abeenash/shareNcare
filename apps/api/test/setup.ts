@@ -7,7 +7,16 @@ import * as schema from "../src/db/schema";
 import { TEST_CRON_SECRET } from "./cron-secret";
 import { fakePhotos } from "./fake-photos";
 
-mock.module("../src/env", () => ({ env: { CRON_SECRET: TEST_CRON_SECRET } }));
+mock.module("../src/env", () => ({
+  env: {
+    CRON_SECRET: TEST_CRON_SECRET,
+    BETTER_AUTH_SECRET: "test-only-auth-secret-0123456789abcdef",
+  },
+}));
+
+mock.module("../src/lib/client-ip", () => ({
+  clientIp: (c: Context) => c.req.header("x-test-ip") ?? "127.0.0.1",
+}));
 
 const testDb = drizzle(new PGlite(), { schema });
 await migrate(testDb, { migrationsFolder: "./drizzle" });
@@ -26,6 +35,7 @@ mock.module("../src/middleware/rate-limit", () => ({
   rateLimit: async (_c: Context, next: Next) => {
     await next();
   },
+  limitBoardPosts: async () => {},
 }));
 
 mock.module("../src/auth", () => ({
