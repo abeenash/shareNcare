@@ -37,7 +37,9 @@ export const BoardNoteInputSchema = z.object({
   color: z.enum(BOARD_COLORS).default("yellow"),
 });
 
-export type BoardNoteInput = z.infer<typeof BoardNoteInputSchema>;
+export type BoardNoteInput = z.input<typeof BoardNoteInputSchema>;
+
+export const BoardNoteFormSchema = BoardNoteInputSchema.extend({ color: z.enum(BOARD_COLORS) });
 
 export const BoardIdSchema = z.object({
   id: z.uuid("That is not a valid board id"),
@@ -54,6 +56,10 @@ export const BoardLinkNoteSchema = ShareTokenSchema.extend({
 export const BoardOpenSchema = z.object({ open: z.boolean() });
 
 export const NoteHiddenSchema = z.object({ hidden: z.boolean() });
+
+export const GuestKeysSchema = z.record(z.string(), z.string());
+
+export type GuestKeys = z.infer<typeof GuestKeysSchema>;
 
 //a guest key is 32 random bytes written as 43 URL-safe characters
 export const GuestKeyHeaderSchema = z.object({

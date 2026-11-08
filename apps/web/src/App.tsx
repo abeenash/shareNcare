@@ -12,6 +12,10 @@ import PrivacyPage from "./pages/PrivacyPage";
 import TrashPage from "./pages/TrashPage";
 
 const SharedLetterPage = lazy(() => import("./pages/SharedLetterPage"));
+const GuestBoardPage = lazy(() => import("./pages/GuestBoardPage"));
+// Board pages bring TanStack Form with them, so they load only when someone opens one.
+const BoardsPage = lazy(() => import("./pages/BoardsPage"));
+const BoardPage = lazy(() => import("./pages/BoardPage"));
 
 const App = () => {
   return (
@@ -31,6 +35,14 @@ const App = () => {
             </Suspense>
           }
         />
+        <Route
+          path="/b/:token"
+          element={
+            <Suspense fallback={<Loader />}>
+              <GuestBoardPage />
+            </Suspense>
+          }
+        />
         <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
@@ -38,6 +50,22 @@ const App = () => {
             <Route path="/note/:id" element={<NoteReadPage />} />
             <Route path="/note/:id/edit" element={<NoteEditPage />} />
             <Route path="/trash" element={<TrashPage />} />
+            <Route
+              path="/boards"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <BoardsPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/boards/:id"
+              element={
+                <Suspense fallback={<Loader />}>
+                  <BoardPage />
+                </Suspense>
+              }
+            />
           </Route>
         </Route>
       </Routes>

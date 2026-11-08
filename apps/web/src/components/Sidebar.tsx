@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { InboxIcon, LogOutIcon, Trash2Icon } from "lucide-react";
+import { InboxIcon, LogOutIcon, StickyNoteIcon, Trash2Icon } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { authClient } from "../auth-client";
 import { useTrash } from "../note-queries";
@@ -36,6 +36,10 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
         <NavLink to="/" end className={navLinkClass} onClick={onNavigate}>
           <InboxIcon className="size-4" />
           Your desk
+        </NavLink>
+        <NavLink to="/boards" className={navLinkClass} onClick={onNavigate}>
+          <StickyNoteIcon className="size-4" />
+          Care boards
         </NavLink>
         <NavLink to="/trash" className={navLinkClass} onClick={onNavigate}>
           <Trash2Icon className="size-4" />

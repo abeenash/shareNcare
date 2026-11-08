@@ -11,7 +11,7 @@ const PrivacyPage = () => {
 
       <h1 className="mt-10 font-serif text-4xl">Privacy policy</h1>
       <p className="mt-2 font-mono text-xs uppercase tracking-widest text-base-content/60">
-        Last updated 7 Nov 2026
+        Last updated 8 Nov 2026
       </p>
 
       <div className="mt-10 space-y-8 leading-relaxed text-base-content/80">
@@ -64,6 +64,20 @@ const PrivacyPage = () => {
             When a burn-after-reading letter is opened, its words are erased from the app for good.
             Neon keeps a short restore history of the database for recovery, so an erased letter can
             remain there for a limited time before it is gone from that history too.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 font-serif text-2xl text-base-content">Care boards</h2>
+          <p>
+            People who write on a care board do not need an account. We store the name and message
+            they type. Their browser keeps a private key so they can delete their own note later.
+          </p>
+          <p className="mt-3">
+            When someone reports a note, we store a one-way fingerprint made from their IP address
+            and a secret, so the same person is only counted once. We do not store the address
+            itself. The person who made the board can hide or delete any note, and deleting the
+            board deletes every note on it.
           </p>
         </section>
 
