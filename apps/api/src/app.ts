@@ -7,10 +7,12 @@ import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
 import { auth } from "./auth";
 import { ValidationError } from "./lib/validate";
+import { boardsRoute } from "./routes/boards";
 import { healthRoute } from "./routes/health";
 import { internalRoute } from "./routes/internal";
 import { notesRoute } from "./routes/notes";
 import { sharedRoute } from "./routes/shared";
+import { sharedBoardsRoute } from "./routes/shared-boards";
 
 const errorBody = (
   code: ApiErrorCode,
@@ -25,6 +27,7 @@ const codeForStatus: Record<number, ApiErrorCode> = {
   404: "NOT_FOUND",
   429: "RATE_LIMITED",
   401: "UNAUTHORIZED",
+  403: "FORBIDDEN",
 };
 
 export const app = new Hono()
@@ -36,6 +39,8 @@ export const app = new Hono()
   .route("/health", healthRoute)
   .route("/notes", notesRoute)
   .route("/shared", sharedRoute)
+  .route("/boards", boardsRoute)
+  .route("/shared-boards", sharedBoardsRoute)
   .route("/internal", internalRoute);
 
 app.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));

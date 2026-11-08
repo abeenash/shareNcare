@@ -1,3 +1,4 @@
+export * from "./boards";
 export * from "./notes";
 
 export const APP_NAME = "shareNcare";
@@ -11,6 +12,7 @@ export type HealthResponse = {
 
 export type ApiErrorCode =
   | "UNAUTHORIZED"
+  | "FORBIDDEN"
   | "NOT_FOUND"
   | "VALIDATION"
   | "RATE_LIMITED"

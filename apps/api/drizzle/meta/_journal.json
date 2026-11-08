@@ -50,6 +50,13 @@
       "when": 1794065575704,
       "tag": "0006_trash_sweep_index",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794131236189,
+      "tag": "0007_care_boards",
+      "breakpoints": true
     }
   ]
 }

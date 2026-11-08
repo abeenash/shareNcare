@@ -3,6 +3,7 @@ import { boolean, index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-c
 import { user } from "./auth-schema";
 
 export * from "./auth-schema";
+export * from "./board-schema";
 
 export const notes = pgTable(
   "notes",
