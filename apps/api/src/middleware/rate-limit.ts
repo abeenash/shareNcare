@@ -18,14 +18,6 @@ const ratelimit = new Ratelimit({
   prefix: "sharencare",
 });
 
-/*this one is for care board. This one is a slower, separate counter just for 
-posting on a board: 30 notes per 10 minutes from one address on one board.*/
-const boardPosts = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(30, "10 m"),
-  prefix: "sharencare:board-posts",
-});
-
 const tooMany = (reset: number, c: Context) => {
   const secondsLeft = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
   c.header("Retry-After", String(secondsLeft));
@@ -44,12 +36,3 @@ export const rateLimit = createMiddleware(async (c, next) => {
   if (result && !result.success) throw tooMany(result.reset, c);
   await next();
 });
-
-export async function limitBoardPosts(c: Context, boardId: string) {
-  if (env.RATE_LIMIT === "off") return;
-  const result = await boardPosts.limit(`${boardId}:${clientIp(c)}`).catch((error: unknown) => {
-    console.warn("Rate limiter unavailable, letting the post through:", error);
-    return null;
-  });
-  if (result && !result.success) throw tooMany(result.reset, c);
-}

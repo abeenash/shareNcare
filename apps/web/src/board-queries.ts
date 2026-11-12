@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { toast } from "react-hot-toast";
 import { api } from "./api-client";
-import { forgetGuestKey, rememberGuestKey } from "./lib/guest-keys";
 import { toApiError } from "./note-queries";
 
 type Board = InferResponseType<(typeof api.boards)[":id"]["$get"], 200>;
@@ -171,10 +170,7 @@ export function usePostBoardNote(token: string) {
       if (!res.ok) throw await toApiError(res);
       return res.json();
     },
-    onSuccess: ({ note, guestKey }) => {
-      rememberGuestKey(note.id, guestKey);
-      return queryClient.invalidateQueries({ queryKey: boardKeys.shared(token) });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: boardKeys.shared(token) }),
     onError: (error) => toast.error(error.message),
   });
 }
@@ -182,16 +178,14 @@ export function usePostBoardNote(token: string) {
 export function useDeleteMyNote(token: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ noteId, guestKey }: { noteId: string; guestKey: string }) => {
+    mutationFn: async (noteId: string) => {
       const res = await api["shared-boards"][":token"].notes[":noteId"].$delete({
         param: { token, noteId },
-        header: { "x-guest-key": guestKey },
       });
       if (!res.ok) throw await toApiError(res);
       return res.json();
     },
-    onSuccess: (_deleted, { noteId }) => {
-      forgetGuestKey(noteId);
+    onSuccess: () => {
       toast.success("Your note was removed");
       return queryClient.invalidateQueries({ queryKey: boardKeys.shared(token) });
     },

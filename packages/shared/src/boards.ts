@@ -23,12 +23,8 @@ export const BoardInputSchema = z.object({
 
 export type BoardInput = z.infer<typeof BoardInputSchema>;
 
+// No name field: the name on a note comes from the writer's account
 export const BoardNoteInputSchema = z.object({
-  authorName: z
-    .string()
-    .trim()
-    .min(1, "Add your name")
-    .max(40, "Name must be 40 characters or less"),
   message: z
     .string()
     .trim()
@@ -56,12 +52,3 @@ export const BoardLinkNoteSchema = ShareTokenSchema.extend({
 export const BoardOpenSchema = z.object({ open: z.boolean() });
 
 export const NoteHiddenSchema = z.object({ hidden: z.boolean() });
-
-export const GuestKeysSchema = z.record(z.string(), z.string());
-
-export type GuestKeys = z.infer<typeof GuestKeysSchema>;
-
-//a guest key is 32 random bytes written as 43 URL-safe characters
-export const GuestKeyHeaderSchema = z.object({
-  "x-guest-key": z.string().regex(/^[\w-]{43}$/, "That is not a valid guest key"),
-});

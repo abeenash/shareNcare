@@ -1,6 +1,14 @@
 import type { BoardColor } from "@sharencare/shared";
 import { relations } from "drizzle-orm";
-import { index, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
 
 export const boards = pgTable(
@@ -26,14 +34,17 @@ export const boardNotes = pgTable(
     boardId: uuid("board_id")
       .notNull()
       .references(() => boards.id, { onDelete: "cascade" }),
+    authorId: text("author_id").references(() => user.id, { onDelete: "cascade" }),
     authorName: text("author_name").notNull(),
     message: text("message").notNull(),
     color: text("color").$type<BoardColor>().notNull().default("yellow"),
-    guestKeyHash: text("guest_key_hash").notNull(),
     hiddenAt: timestamp("hidden_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index("board_notes_board_id_idx").on(table.boardId)],
+  (table) => [
+    index("board_notes_board_id_idx").on(table.boardId),
+    uniqueIndex("board_notes_one_per_author").on(table.boardId, table.authorId),
+  ],
 );
 
 export const boardReports = pgTable(

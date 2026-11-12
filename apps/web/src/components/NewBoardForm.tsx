@@ -44,7 +44,7 @@ const NewBoardForm = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  placeholder="Farewell, Didi"
+                  placeholder="Farewell, Abinash"
                   maxLength={80}
                   autoComplete="off"
                   className="input w-full bg-base-100"
@@ -67,7 +67,7 @@ const NewBoardForm = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  placeholder="Didi"
+                  placeholder="Abinash"
                   maxLength={60}
                   autoComplete="off"
                   className="input w-full bg-base-100"

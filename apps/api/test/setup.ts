@@ -3,6 +3,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import type { Context, Next } from "hono";
+import { HTTPException } from "hono/http-exception";
 import * as schema from "../src/db/schema";
 import { TEST_CRON_SECRET } from "./cron-secret";
 import { fakePhotos } from "./fake-photos";
@@ -35,7 +36,6 @@ mock.module("../src/middleware/rate-limit", () => ({
   rateLimit: async (_c: Context, next: Next) => {
     await next();
   },
-  limitBoardPosts: async () => {},
 }));
 
 mock.module("../src/auth", () => ({
@@ -45,7 +45,13 @@ mock.module("../src/auth", () => ({
 mock.module("../src/middleware/require-user", () => ({
   requireUser: async (c: Context, next: Next) => {
     const id = c.req.header("x-test-user") ?? "alice";
+    if (id === "nobody") throw new HTTPException(401, { message: "Please sign in first" });
     c.set("user", { id, name: id, email: `${id}@test.dev` });
+    await next();
+  },
+  optionalUser: async (c: Context, next: Next) => {
+    const id = c.req.header("x-test-user");
+    c.set("user", id && id !== "nobody" ? { id, name: id, email: `${id}@test.dev` } : null);
     await next();
   },
 }));
