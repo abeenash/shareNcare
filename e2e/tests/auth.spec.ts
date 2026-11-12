@@ -5,7 +5,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
 
 test("a signed-out visitor is sent to the login page", async ({ page }) => {
   await page.goto("/trash");
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/login\?next=%2Ftrash$/);
 });
 
 test("a new user can sign up, sign out and sign back in", async ({ page }) => {

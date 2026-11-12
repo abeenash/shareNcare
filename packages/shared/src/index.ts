@@ -13,6 +13,7 @@ export type HealthResponse = {
 export type ApiErrorCode =
   | "UNAUTHORIZED"
   | "FORBIDDEN"
+  | "CONFLICT"
   | "NOT_FOUND"
   | "VALIDATION"
   | "RATE_LIMITED"

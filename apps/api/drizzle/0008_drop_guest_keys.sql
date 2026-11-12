@@ -1,0 +1,1 @@
+ALTER TABLE "board_notes" DROP COLUMN "guest_key_hash";

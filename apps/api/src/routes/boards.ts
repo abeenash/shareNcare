@@ -60,7 +60,7 @@ export const boardsRoute = new Hono()
       where: and(eq(boards.id, id), ownedBy(user.id)),
       with: {
         notes: {
-          columns: { guestKeyHash: false },
+          columns: { authorId: false },
           orderBy: asc(boardNotes.createdAt),
           with: { reports: { columns: { createdAt: true } } },
         },

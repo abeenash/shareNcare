@@ -28,6 +28,7 @@ const codeForStatus: Record<number, ApiErrorCode> = {
   429: "RATE_LIMITED",
   401: "UNAUTHORIZED",
   403: "FORBIDDEN",
+  409: "CONFLICT",
 };
 
 export const app = new Hono()

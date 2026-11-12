@@ -11,7 +11,7 @@ const PrivacyPage = () => {
 
       <h1 className="mt-10 font-serif text-4xl">Privacy policy</h1>
       <p className="mt-2 font-mono text-xs uppercase tracking-widest text-base-content/60">
-        Last updated 8 Nov 2026
+        Last updated 12 Nov 2026
       </p>
 
       <div className="mt-10 space-y-8 leading-relaxed text-base-content/80">
@@ -70,8 +70,8 @@ const PrivacyPage = () => {
         <section>
           <h2 className="mb-2 font-serif text-2xl text-base-content">Care boards</h2>
           <p>
-            People who write on a care board do not need an account. We store the name and message
-            they type. Their browser keeps a private key so they can delete their own note later.
+            Anyone with a care board's link can read it. To write on one, you sign in first. Your
+            note shows your first name, and only you or the person who made the board can delete it.
           </p>
           <p className="mt-3">
             When someone reports a note, we store a one-way fingerprint made from their IP address

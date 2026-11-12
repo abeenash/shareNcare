@@ -2,7 +2,6 @@ import {
   BOARD_NOTE_LIMIT,
   BoardLinkNoteSchema,
   BoardNoteInputSchema,
-  GuestKeyHeaderSchema,
   REPORTS_TO_HIDE,
   ShareTokenSchema,
 } from "@sharencare/shared";
@@ -12,12 +11,14 @@ import { HTTPException } from "hono/http-exception";
 import { db } from "../db";
 import { boardNotes, boardReports, boards } from "../db/board-schema";
 import { clientIp } from "../lib/client-ip";
-import { hashGuestKey, newGuestKey, reporterFingerprint } from "../lib/guest-keys";
+import { reporterFingerprint } from "../lib/fingerprint";
 import { validate } from "../lib/validate";
-import { limitBoardPosts, rateLimit } from "../middleware/rate-limit";
+import { rateLimit } from "../middleware/rate-limit";
+import { optionalUser, requireUser } from "../middleware/require-user";
 
 const boardNotHere = () => new HTTPException(404, { message: "This board isn't here" });
 const noteNotFound = () => new HTTPException(404, { message: "Note not found" });
+const firstName = (name: string) => name.split(" ")[0] ?? name;
 
 const publicNote = {
   id: boardNotes.id,
@@ -38,41 +39,65 @@ async function findBoard(token: string) {
 
 export const sharedBoardsRoute = new Hono()
   .use(rateLimit)
-  .get("/:token", validate("param", ShareTokenSchema), async (c) => {
+
+  //anyone with the link can read. Signing in only adds "this note is yours".
+  .get("/:token", optionalUser, validate("param", ShareTokenSchema), async (c) => {
+    const viewer = c.get("user");
     const { token } = c.req.valid("param");
     const board = await db.query.boards.findFirst({
       where: eq(boards.token, token),
-      columns: { title: true, recipient: true, closedAt: true },
+      columns: { id: true, title: true, recipient: true, closedAt: true },
       with: {
         owner: { columns: { name: true } },
         notes: {
           where: isNull(boardNotes.hiddenAt),
           orderBy: asc(boardNotes.createdAt),
-          columns: { id: true, authorName: true, message: true, color: true, createdAt: true },
+          columns: {
+            id: true,
+            authorId: true,
+            authorName: true,
+            message: true,
+            color: true,
+            createdAt: true,
+          },
         },
       },
     });
     if (!board) throw boardNotHere();
 
+    //viewer's own note, even a hidden one, so the page can say what happened to it
+    const [yourNote] = viewer
+      ? await db
+          .select({ id: boardNotes.id, hiddenAt: boardNotes.hiddenAt })
+          .from(boardNotes)
+          .where(and(eq(boardNotes.boardId, board.id), eq(boardNotes.authorId, viewer.id)))
+      : [];
+
     return c.json({
       title: board.title,
       recipient: board.recipient,
-      from: board.owner.name.split(" ")[0] ?? board.owner.name,
+      from: firstName(board.owner.name),
       open: board.closedAt === null,
-      notes: board.notes,
+      signedIn: viewer !== null,
+      yourNote: yourNote ? { id: yourNote.id, hidden: yourNote.hiddenAt !== null } : null,
+      notes: board.notes.map(({ authorId, ...note }) => ({
+        ...note,
+        mine: viewer !== null && authorId === viewer.id,
+      })),
     });
   })
+  //writing needs an account: one person, one note per board
   .post(
     "/:token/notes",
+    requireUser,
     validate("param", ShareTokenSchema),
     validate("json", BoardNoteInputSchema),
     async (c) => {
+      const user = c.get("user");
       const { token } = c.req.valid("param");
       const input = c.req.valid("json");
       const board = await findBoard(token);
       if (board.closedAt) throw new HTTPException(403, { message: "This board is closed" });
-
-      await limitBoardPosts(c, board.id);
 
       const [{ notesSoFar } = { notesSoFar: 0 }] = await db
         .select({ notesSoFar: count() })
@@ -82,23 +107,32 @@ export const sharedBoardsRoute = new Hono()
         throw new HTTPException(403, { message: "This board is full" });
       }
 
-      const guestKey = newGuestKey();
       const [note] = await db
         .insert(boardNotes)
-        .values({ ...input, boardId: board.id, guestKeyHash: hashGuestKey(guestKey) })
+        .values({
+          ...input,
+          boardId: board.id,
+          authorId: user.id,
+          authorName: firstName(user.name),
+        })
+        .onConflictDoNothing()
         .returning(publicNote);
-      if (!note) throw new Error("Insert returned no row");
 
-      return c.json({ note, guestKey }, 201);
+      //no row came back. The one-note-per-person index refused it.
+      if (!note) {
+        throw new HTTPException(409, { message: "You already have a note on this board" });
+      }
+      return c.json(note, 201);
     },
   )
+  //only the person who wrote a note can delete it here. The owner has their own route.
   .delete(
     "/:token/notes/:noteId",
+    requireUser,
     validate("param", BoardLinkNoteSchema),
-    validate("header", GuestKeyHeaderSchema),
     async (c) => {
+      const user = c.get("user");
       const { token, noteId } = c.req.valid("param");
-      const guestKey = c.req.valid("header")["x-guest-key"];
       const board = await findBoard(token);
       const [deleted] = await db
         .delete(boardNotes)
@@ -106,7 +140,7 @@ export const sharedBoardsRoute = new Hono()
           and(
             eq(boardNotes.id, noteId),
             eq(boardNotes.boardId, board.id),
-            eq(boardNotes.guestKeyHash, hashGuestKey(guestKey)),
+            eq(boardNotes.authorId, user.id),
           ),
         )
         .returning({ id: boardNotes.id });
@@ -114,6 +148,7 @@ export const sharedBoardsRoute = new Hono()
       return c.json(deleted);
     },
   )
+  //anyone with the link may report, signed in or not
   .post("/:token/notes/:noteId/report", validate("param", BoardLinkNoteSchema), async (c) => {
     const { token, noteId } = c.req.valid("param");
     const board = await findBoard(token);

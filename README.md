@@ -18,7 +18,7 @@
 - **Measurable:** every API response carries a `Server-Timing` header
 - **Letters worth sending:** share links, burn-after-reading, sealed letters, and private photos on Cloudflare R2
 - **Trash that cleans itself:** empty it any time, and letters left for 30 days are deleted along with their photos
-- **Care boards:** one link where friends add notes for someone, no account needed, with reporting and owner moderation
+- **Care boards:** one link where friends add notes for someone; anyone can read, signed-in people write one note each, with reporting and owner moderation
 
 **Coming next:** live boards with WebSockets.
 

@@ -11,16 +11,15 @@ const GuestNoteForm = ({ token }: { token: string }) => {
   const postNote = usePostBoardNote(token);
 
   const form = useForm({
-    defaultValues: { authorName: "", message: "", color: "yellow" as BoardColor },
+    defaultValues: { message: "", color: "yellow" as BoardColor },
     validators: { onChange: BoardNoteFormSchema },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ value }) => {
       try {
         await postNote.mutateAsync(value);
       } catch {
         return; // the hook already showed the error, and the words stay in the form
       }
       toast.success("Your note is on the board");
-      formApi.reset({ ...value, message: "" });
     },
   });
 
@@ -34,27 +33,10 @@ const GuestNoteForm = ({ token }: { token: string }) => {
       className="card border border-base-content/10 bg-base-200"
     >
       <div className="card-body gap-5 p-6 md:p-8">
-        <h2 className="font-serif text-2xl">Add your note</h2>
-
-        <form.Field name="authorName">
-          {(field) => (
-            <div>
-              <label htmlFor="guest-name" className="mb-1 block text-sm text-base-content/70">
-                Your name
-              </label>
-              <input
-                id="guest-name"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                maxLength={40}
-                autoComplete="name"
-                className="input w-full bg-base-100"
-              />
-              <FieldError meta={field.state.meta} />
-            </div>
-          )}
-        </form.Field>
+        <div>
+          <h2 className="font-serif text-2xl">Add your note</h2>
+          <p className="mt-1 text-sm text-base-content/60">Your first name will appear on it.</p>
+        </div>
 
         <form.Field name="message">
           {(field) => (

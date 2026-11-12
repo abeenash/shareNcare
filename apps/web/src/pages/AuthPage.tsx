@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type FormEvent, useState } from "react";
+import { type SubmitEvent, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, Navigate, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import { authClient } from "../auth-client";
 import GoogleIcon from "../components/GoogleIcon";
+import { safeNext } from "../lib/safe-next";
 import { useOAuthErrorToast } from "../lib/use-oauth-error-toast";
 
 type Mode = "sign-in" | "sign-up";
@@ -16,6 +17,8 @@ const AuthPage = () => {
   const { data: session } = authClient.useSession();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const next = safeNext(searchParams.get("next"));
   useOAuthErrorToast();
 
   const submit = useMutation({
@@ -30,7 +33,7 @@ const AuthPage = () => {
     },
     onSuccess: () => {
       queryClient.clear();
-      navigate("/");
+      navigate(next);
     },
     onError: (error) => toast.error(error.message),
   });
@@ -39,7 +42,7 @@ const AuthPage = () => {
     mutationFn: async () => {
       const result = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: next,
         errorCallbackURL: "/login",
       });
       if (result.error) throw new Error(result.error.message ?? "Could not reach Google");
@@ -47,12 +50,12 @@ const AuthPage = () => {
     onError: (error) => toast.error(error.message),
   });
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     submit.mutate();
   };
 
-  if (session) return <Navigate to="/" replace />;
+  if (session) return <Navigate to={next} replace />;
 
   const isSignUp = mode === "sign-up";
 
