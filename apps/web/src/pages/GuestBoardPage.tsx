@@ -8,9 +8,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router";
-import { useDeleteMyNote, useReportNote, useSharedBoard } from "../board-queries";
+import { useDeleteMyNote, useLiveBoard, useReportNote, useSharedBoard } from "../board-queries";
 import ConfirmModal from "../components/ConfirmModal";
 import GuestNoteForm from "../components/GuestNoteForm";
+import LiveBadge from "../components/LiveBadge";
 import Loader from "../components/Loader";
 import Logo from "../components/Logo";
 import StickyNote from "../components/StickyNote";
@@ -23,6 +24,7 @@ const Card = ({ children }: { children: React.ReactNode }) => (
 
 const GuestBoard = ({ token }: { token: string }) => {
   const { data: board, isPending, error } = useSharedBoard(token);
+  const live = useLiveBoard(board && !error ? token : undefined);
   const deleteMine = useDeleteMyNote(token);
   const report = useReportNote(token);
   const [reported, setReported] = useState<string[]>([]);
@@ -140,6 +142,9 @@ const GuestBoard = ({ token }: { token: string }) => {
         <p className="mt-3 font-mono text-xs uppercase tracking-widest text-primary">
           For · {board.recipient}
         </p>
+        <div className="mt-4">
+          <LiveBadge live={live} />
+        </div>
       </header>
 
       {board.notes.length === 0 && (

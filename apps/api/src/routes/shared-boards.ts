@@ -1,3 +1,4 @@
+import { upgradeWebSocket } from "@hono/bun";
 import {
   BOARD_NOTE_LIMIT,
   BoardLinkNoteSchema,
@@ -12,6 +13,7 @@ import { db } from "../db";
 import { boardNotes, boardReports, boards } from "../db/board-schema";
 import { clientIp } from "../lib/client-ip";
 import { reporterFingerprint } from "../lib/fingerprint";
+import { announce, fromOwnSite, watch } from "../lib/live-boards";
 import { validate } from "../lib/validate";
 import { rateLimit } from "../middleware/rate-limit";
 import { optionalUser, requireUser } from "../middleware/require-user";
@@ -122,6 +124,7 @@ export const sharedBoardsRoute = new Hono()
       if (!note) {
         throw new HTTPException(409, { message: "You already have a note on this board" });
       }
+      announce(board.id);
       return c.json(note, 201);
     },
   )
@@ -145,6 +148,7 @@ export const sharedBoardsRoute = new Hono()
         )
         .returning({ id: boardNotes.id });
       if (!deleted) throw noteNotFound();
+      announce(board.id);
       return c.json(deleted);
     },
   )
@@ -168,12 +172,38 @@ export const sharedBoardsRoute = new Hono()
       .from(boardReports)
       .where(eq(boardReports.noteId, note.id));
     if (reports >= REPORTS_TO_HIDE) {
-      await db
+      const [nowHidden] = await db
         .update(boardNotes)
         .set({ hiddenAt: new Date() })
-        .where(and(eq(boardNotes.id, note.id), isNull(boardNotes.hiddenAt)));
+        .where(and(eq(boardNotes.id, note.id), isNull(boardNotes.hiddenAt)))
+        .returning({ id: boardNotes.id });
+
+      if (nowHidden) announce(board.id);
     }
 
     return c.json({ reported: true });
     //return the same answer everytime, so nobody can learn how many reports a note has
-  });
+  })
+
+  //websocket......
+  //the live line. the page opens it once and keeps it open
+  //whenever a note comes, goes or is hidden, the server says "changed" down it, and the page fetches again
+  .get(
+    "/:token/live",
+    validate("param", ShareTokenSchema),
+    upgradeWebSocket(async (c) => {
+      if (!fromOwnSite(c.req.header("origin"))) {
+        throw new HTTPException(403, { message: "Live updates only work on shareNcare itself" });
+      }
+
+      const board = await findBoard(c.req.param("token") ?? "");
+      let stopWatching = () => {};
+
+      return {
+        onOpen: (_event, socket) => {
+          stopWatching = watch(board.id, socket);
+        },
+        onClose: () => stopWatching(),
+      };
+    }),
+  );

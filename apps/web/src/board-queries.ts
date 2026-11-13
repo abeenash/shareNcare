@@ -1,8 +1,15 @@
-import type { BoardInput, BoardNoteInput } from "@sharencare/shared";
+import {
+  BOARD_CHANGED,
+  BOARD_GONE,
+  type BoardInput,
+  type BoardNoteInput,
+} from "@sharencare/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { api } from "./api-client";
+import { retryDelay } from "./lib/retry-delay";
 import { toApiError } from "./note-queries";
 
 type Board = InferResponseType<(typeof api.boards)[":id"]["$get"], 200>;
@@ -209,4 +216,72 @@ export function useReportNote(token: string) {
     },
     onError: (error) => toast.error(error.message),
   });
+}
+
+/* --------------- Live updates ------------------ */
+//since a websocket address starts with ws:// (or wss:// => https' site), so it should resolve to "https://sharencare.onrender.com" -> "wss://sharencare.onrender.com/api/shared-boards/<token>/live
+function liveAddress(token: string) {
+  const address = new URL(`/api/shared-boards/${token}/live`, window.location.href);
+  address.protocol = address.protocol === "https:" ? "wss:" : "ws:";
+  return address.href;
+}
+
+/*this function keeps a live line (a websocket) open to a board while its page is on screen.
+whenever the server says "changed", the board is fetched again, so new notes simply appear. it returns true while the line is open. */
+export function useLiveBoard(token: string | undefined) {
+  const queryClient = useQueryClient();
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    if (!token) return;
+
+    let socket: WebSocket;
+    let failures = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let leaving = false;
+
+    //both pages show this board, (both guest page and owner's page). only the one on screen actually fetches again, the other is just marked old
+    const refresh = () => {
+      queryClient.invalidateQueries({ queryKey: boardKeys.shared(token) });
+      queryClient.invalidateQueries({ queryKey: boardKeys.all });
+    };
+
+    const connect = () => {
+      socket = new WebSocket(liveAddress(token));
+
+      socket.onopen = () => {
+        failures = 0;
+        setLive(true);
+        refresh(); //important! anything that happened while we were not listening
+      };
+
+      socket.onmessage = (event) => {
+        if (event.data === BOARD_CHANGED) refresh();
+      };
+
+      socket.onclose = (event) => {
+        if (leaving) return;
+        setLive(false);
+
+        //the board was deleted or got a new link. old link will never work.
+        if (event.code === BOARD_GONE) {
+          refresh();
+          return;
+        }
+        retryTimer = setTimeout(connect, retryDelay(failures));
+        failures += 1;
+      };
+    };
+    connect();
+
+    //the page is going away or the token changed. so it is hung up and stopped retrying
+    return () => {
+      leaving = true;
+      clearTimeout(retryTimer);
+      socket.close();
+      setLive(false);
+    };
+  }, [token, queryClient]);
+
+  return live;
 }

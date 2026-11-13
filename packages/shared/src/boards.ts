@@ -8,6 +8,14 @@ export type BoardColor = (typeof BOARD_COLORS)[number];
 export const BOARD_NOTE_LIMIT = 200;
 export const REPORTS_TO_HIDE = 3;
 
+/*the live line to a board (a WebSocket) only ever carries this one word
+It means "something on the board changed, fetch it again". The note themselves always
+come from the normal GET, so the socket can never leak a hidden note.*/
+export const BOARD_CHANGED = "changed";
+
+//this will be the close code for "this board is gone, deleted, or its link was changed"
+export const BOARD_GONE = 4404;
+
 export const BoardInputSchema = z.object({
   title: z
     .string()

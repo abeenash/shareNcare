@@ -1,4 +1,4 @@
-import { serveStatic } from "@hono/bun";
+import { serveStatic, websocket } from "@hono/bun";
 import { Hono } from "hono";
 import { app } from "./app";
 import { env } from "./env";
@@ -25,5 +25,9 @@ export default {
       return website.fetch(request, server);
     }
     return app.fetch(request, server);
+  },
+  websocket: {
+    ...websocket,
+    maxPayloadLength: 1024,
   },
 };
