@@ -12,6 +12,7 @@ mock.module("../src/env", () => ({
   env: {
     CRON_SECRET: TEST_CRON_SECRET,
     BETTER_AUTH_SECRET: "test-only-auth-secret-0123456789abcdef",
+    BETTER_AUTH_URL: "http://localhost:5173",
   },
 }));
 

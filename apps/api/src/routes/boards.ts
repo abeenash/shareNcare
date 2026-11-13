@@ -10,6 +10,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "../db";
 import { boardNotes, boardReports, boards } from "../db/board-schema";
+import { announce, closeBoard } from "../lib/live-boards";
 import { newShareToken } from "../lib/share-token";
 import { validate } from "../lib/validate";
 import { rateLimit } from "../middleware/rate-limit";
@@ -83,6 +84,7 @@ export const boardsRoute = new Hono()
       .where(and(eq(boards.id, id), ownedBy(user.id)))
       .returning();
     if (!board) throw boardNotFound();
+    announce(board.id);
     return c.json(board);
   })
   .post("/:id/new-link", validate("param", BoardIdSchema), async (c) => {
@@ -94,6 +96,8 @@ export const boardsRoute = new Hono()
       .where(and(eq(boards.id, id), ownedBy(user.id)))
       .returning();
     if (!board) throw boardNotFound();
+    //everyone listening came in through the old link. so hang up on all of them
+    closeBoard(board.id);
     return c.json(board);
   })
   .delete("/:id", validate("param", BoardIdSchema), async (c) => {
@@ -104,6 +108,7 @@ export const boardsRoute = new Hono()
       .where(and(eq(boards.id, id), ownedBy(user.id)))
       .returning({ id: boards.id });
     if (!deleted) throw boardNotFound();
+    closeBoard(deleted.id);
     return c.json(deleted);
   })
   //to hide a note, or bring it back. Bringing it back clears its reports
@@ -130,6 +135,7 @@ export const boardsRoute = new Hono()
       });
 
       if (!note) throw noteNotFound();
+      announce(board.id);
       return c.json(note);
     },
   )
@@ -142,5 +148,6 @@ export const boardsRoute = new Hono()
       .where(and(eq(boardNotes.id, noteId), eq(boardNotes.boardId, board.id)))
       .returning({ id: boardNotes.id });
     if (!deleted) throw noteNotFound();
+    announce(board.id);
     return c.json(deleted);
   });

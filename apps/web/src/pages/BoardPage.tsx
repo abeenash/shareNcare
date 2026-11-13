@@ -13,11 +13,13 @@ import {
   useBoard,
   useDeleteBoard,
   useDeleteBoardNote,
+  useLiveBoard,
   useNewBoardLink,
   useSetBoardOpen,
   useSetNoteHidden,
 } from "../board-queries";
 import ConfirmModal from "../components/ConfirmModal";
+import LiveBadge from "../components/LiveBadge";
 import Loader from "../components/Loader";
 import StickyNote from "../components/StickyNote";
 
@@ -25,6 +27,7 @@ const BoardPage = () => {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const { data: board, isPending, error } = useBoard(id);
+  const live = useLiveBoard(error ? undefined : board?.token);
   const setOpen = useSetBoardOpen(id);
   const newLink = useNewBoardLink(id);
   const deleteBoard = useDeleteBoard();
@@ -68,7 +71,7 @@ const BoardPage = () => {
       <section className="card mb-10 border border-base-content/10 bg-base-200">
         <div className="card-body gap-4 p-6">
           <p className="text-base-content/70">
-            Anyone with this link can read the board and add a note. No account needed.
+            Anyone with this link can read the board. People who sign in can add one note each.
           </p>
           <div className="join w-full">
             <input
@@ -117,6 +120,7 @@ const BoardPage = () => {
         <h2>Notes</h2>
         <span className="text-base-content/50">{String(board.notes.length).padStart(2, "0")}</span>
         <div className="h-px flex-1 bg-base-content/10" />
+        <LiveBadge live={live} />
       </div>
 
       {board.notes.length === 0 && (
