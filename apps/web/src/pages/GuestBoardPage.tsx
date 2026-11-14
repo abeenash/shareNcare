@@ -11,7 +11,7 @@ import { Link, useParams } from "react-router";
 import { useDeleteMyNote, useLiveBoard, useReportNote, useSharedBoard } from "../board-queries";
 import ConfirmModal from "../components/ConfirmModal";
 import GuestNoteForm from "../components/GuestNoteForm";
-import LiveBadge from "../components/LiveBadge";
+import LiveBadge, { WritingNow } from "../components/LiveBadge";
 import Loader from "../components/Loader";
 import Logo from "../components/Logo";
 import StickyNote from "../components/StickyNote";
@@ -129,7 +129,7 @@ const GuestBoard = ({ token }: { token: string }) => {
         </Card>
       );
     }
-    return <GuestNoteForm token={token} />;
+    return <GuestNoteForm token={token} onTyping={live.typing} />;
   };
 
   return (
@@ -143,7 +143,7 @@ const GuestBoard = ({ token }: { token: string }) => {
           For · {board.recipient}
         </p>
         <div className="mt-4">
-          <LiveBadge live={live} />
+          <LiveBadge live={live.live} here={live.here} />
         </div>
       </header>
 
@@ -187,6 +187,10 @@ const GuestBoard = ({ token }: { token: string }) => {
             </StickyNote>
           );
         })}
+      </div>
+
+      <div className="mt-8">
+        <WritingNow names={live.writers} />
       </div>
 
       <div className="mx-auto mt-12 max-w-2xl">{writeArea()}</div>

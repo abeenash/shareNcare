@@ -8,10 +8,29 @@ export type BoardColor = (typeof BOARD_COLORS)[number];
 export const BOARD_NOTE_LIMIT = 200;
 export const REPORTS_TO_HIDE = 3;
 
-/*the live line to a board (a WebSocket) only ever carries this one word
-It means "something on the board changed, fetch it again". The note themselves always
-come from the normal GET, so the socket can never leak a hidden note.*/
-export const BOARD_CHANGED = "changed";
+/*the live line to a board (WebSocket)
+1.changed => It means "something on the board changed, fetch it again". The note themselves always
+come from the normal GET, so the line can never leak a hidden note.
+2.here => It means how many pages have this board open right now
+3.writing => first names of the people typing a note right now, but never one's own*/
+export const LiveMessageSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("changed") }),
+  z.object({ type: z.literal("here"), count: z.number().int().min(0) }),
+  z.object({ type: z.literal("writing"), names: z.array(z.string()) }),
+]);
+
+export type LiveMessage = z.infer<typeof LiveMessageSchema>;
+
+//what a browser may say
+export const LiveRequestSchema = z.object({ type: z.literal("writing") });
+export type LiveRequest = z.infer<typeof LiveRequestSchema>;
+
+//throttle set: a typing browser says "writing" at most this often
+export const WRITING_SIGNAL_EVERY = 2_000;
+
+/* the lease: ..and the server forgets it this long after the last one. Longer than the gap
+between signals, so someone typing steadily never flickers off*/
+export const WRITING_FADES_AFTER = 5_000;
 
 //this will be the close code for "this board is gone, deleted, or its link was changed"
 export const BOARD_GONE = 4404;

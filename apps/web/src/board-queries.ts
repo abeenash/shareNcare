@@ -1,12 +1,15 @@
 import {
-  BOARD_CHANGED,
   BOARD_GONE,
   type BoardInput,
   type BoardNoteInput,
+  type LiveMessage,
+  LiveMessageSchema,
+  type LiveRequest,
+  WRITING_SIGNAL_EVERY,
 } from "@sharencare/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { api } from "./api-client";
 import { retryDelay } from "./lib/retry-delay";
@@ -226,11 +229,28 @@ function liveAddress(token: string) {
   return address.href;
 }
 
-/*this function keeps a live line (a websocket) open to a board while its page is on screen.
-whenever the server says "changed", the board is fetched again, so new notes simply appear. it returns true while the line is open. */
+function readLiveMessage(data: unknown): LiveMessage | null {
+  if (typeof data !== "string") return null;
+  try {
+    const parsed = LiveMessageSchema.safeParse(JSON.parse(data));
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+/* this function keeps a live line (a websocket) open to a board while its page is on screen.
+ it hears 3 things => "changed", i.e., fetch the board again, how many are here, and who is writing.
+ it can say one thing back: i am typing */
 export function useLiveBoard(token: string | undefined) {
   const queryClient = useQueryClient();
   const [live, setLive] = useState(false);
+  const [here, setHere] = useState(0);
+  const [writers, setWriters] = useState<string[]>([]);
+
+  //because changing them should not re-render the page
+  const openSocket = useRef<WebSocket | null>(null);
+  const lastSaidWriting = useRef(0);
 
   useEffect(() => {
     if (!token) return;
@@ -246,17 +266,29 @@ export function useLiveBoard(token: string | undefined) {
       queryClient.invalidateQueries({ queryKey: boardKeys.all });
     };
 
+    //we don't know anything while the line is down, so nothing is shown
+    const forget = () => {
+      openSocket.current = null;
+      setLive(false);
+      setHere(0);
+      setWriters([]);
+    };
+
     const connect = () => {
       socket = new WebSocket(liveAddress(token));
 
       socket.onopen = () => {
         failures = 0;
+        openSocket.current = socket;
         setLive(true);
         refresh(); //important! anything that happened while we were not listening
       };
 
       socket.onmessage = (event) => {
-        if (event.data === BOARD_CHANGED) refresh();
+        const message = readLiveMessage(event.data);
+        if (message?.type === "changed") refresh();
+        if (message?.type === "here") setHere(message.count);
+        if (message?.type === "writing") setWriters(message.names);
       };
 
       socket.onclose = (event) => {
@@ -279,9 +311,17 @@ export function useLiveBoard(token: string | undefined) {
       leaving = true;
       clearTimeout(retryTimer);
       socket.close();
-      setLive(false);
+      forget();
     };
   }, [token, queryClient]);
 
-  return live;
+  const typing = () => {
+    const now = Date.now();
+    if (now - lastSaidWriting.current < WRITING_SIGNAL_EVERY) return;
+    if (openSocket.current?.readyState !== WebSocket.OPEN) return;
+    lastSaidWriting.current = now;
+    openSocket.current.send(JSON.stringify({ type: "writing" } satisfies LiveRequest));
+  };
+
+  return { live, here, writers, typing };
 }

@@ -5,9 +5,14 @@ import { usePostBoardNote } from "../board-queries";
 import FieldError from "./FieldError";
 import { STICKY_COLORS } from "./StickyNote";
 
+type GuestNoteFormProps = {
+  token: string;
+  onTyping: () => void;
+};
+
 const MAX_MESSAGE = 500;
 
-const GuestNoteForm = ({ token }: { token: string }) => {
+const GuestNoteForm = ({ token, onTyping }: GuestNoteFormProps) => {
   const postNote = usePostBoardNote(token);
 
   const form = useForm({
@@ -47,7 +52,10 @@ const GuestNoteForm = ({ token }: { token: string }) => {
               <textarea
                 id="guest-message"
                 value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
+                onChange={(e) => {
+                  field.handleChange(e.target.value);
+                  onTyping();
+                }}
                 onBlur={field.handleBlur}
                 maxLength={MAX_MESSAGE}
                 className="textarea field-sizing-content min-h-32 w-full bg-base-100 text-base"
