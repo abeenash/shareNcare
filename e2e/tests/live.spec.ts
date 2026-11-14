@@ -25,7 +25,9 @@ async function makeBoard(page: Page) {
   return page.getByLabel("Board link").inputValue();
 }
 
-const isLive = (page: Page) => expect(page.getByText("Live", { exact: true })).toBeVisible();
+// The badge reads "Live", or "Live · 3 here" once others have the board open too.
+const badge = (page: Page) => page.getByRole("status").filter({ hasText: /^(Live|Connecting)/ });
+const isLive = (page: Page) => expect(badge(page)).toHaveText(/^Live/);
 const noteWith = (page: Page, text: string) => page.getByRole("article").filter({ hasText: text });
 
 async function postNote(page: Page, message: string) {
@@ -114,7 +116,7 @@ test("a dropped line comes back by itself, and catches up on what it missed", as
 
   cut = true;
   await line?.close({ code: 1001, reason: "Test cut the line" });
-  await expect(reader.getByText("Connecting", { exact: true })).toBeVisible();
+  await expect(badge(reader)).toHaveText("Connecting");
   await postNote(asha, "Posted while you were away");
 
   // The reader really missed it: the line is down and nothing reloads the page.
@@ -124,4 +126,48 @@ test("a dropped line comes back by itself, and catches up on what it missed", as
   cut = false;
   await isLive(reader);
   await expect(noteWith(reader, "Posted while you were away")).toBeVisible();
+});
+
+test("everyone sees how many are here, and who is writing, until they post", async ({
+  page,
+  browser,
+}) => {
+  const link = await makeBoard(page);
+  await expect(badge(page)).toHaveText("Live");
+
+  const reader = await visitor(browser);
+  await reader.goto(link);
+  await expect(badge(reader)).toHaveText("Live· 2 here");
+  await expect(badge(page)).toHaveText("Live· 2 here");
+
+  const asha = await writer(browser, "Asha Rai");
+  // Write down every frame Asha's browser sends up the live line.
+  const ashaSaid: string[] = [];
+  asha.on("websocket", (line) =>
+    line.on("framesent", (frame) => ashaSaid.push(String(frame.payload))),
+  );
+  await asha.goto(link);
+  await expect(badge(reader)).toHaveText("Live· 3 here");
+
+  // Asha types, key by key: everyone else sees her first name, she does not see her own.
+  await asha.getByLabel("Your message").pressSequentially("Thank you for", { delay: 30 });
+  await expect(reader.getByText("Asha is writing...")).toBeVisible();
+  await expect(page.getByText("Asha is writing...")).toBeVisible();
+  await expect(asha.getByText("Asha is writing...")).toBeHidden();
+  // 13 keystrokes in under a second, but her browser said "writing" only once.
+  expect(ashaSaid).toEqual(['{"type":"writing"}']);
+
+  // She stops typing, and a few seconds later it fades by itself.
+  await expect(reader.getByText("Asha is writing...")).toBeHidden();
+
+  // She types again and posts: the note arrives and the line goes at once.
+  await asha.getByLabel("Your message").fill("Thank you for every chai break.");
+  await expect(reader.getByText("Asha is writing...")).toBeVisible();
+  await asha.getByRole("button", { name: "Post my note" }).click();
+  await expect(noteWith(reader, "every chai break")).toBeVisible();
+  await expect(reader.getByText("Asha is writing...")).toBeHidden();
+
+  // When she leaves, the count goes down.
+  await asha.close();
+  await expect(badge(reader)).toHaveText("Live· 2 here");
 });

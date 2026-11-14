@@ -19,7 +19,7 @@ import {
   useSetNoteHidden,
 } from "../board-queries";
 import ConfirmModal from "../components/ConfirmModal";
-import LiveBadge from "../components/LiveBadge";
+import LiveBadge, { WritingNow } from "../components/LiveBadge";
 import Loader from "../components/Loader";
 import StickyNote from "../components/StickyNote";
 
@@ -120,7 +120,7 @@ const BoardPage = () => {
         <h2>Notes</h2>
         <span className="text-base-content/50">{String(board.notes.length).padStart(2, "0")}</span>
         <div className="h-px flex-1 bg-base-content/10" />
-        <LiveBadge live={live} />
+        <LiveBadge live={live.live} here={live.here} />
       </div>
 
       {board.notes.length === 0 && (
@@ -171,6 +171,10 @@ const BoardPage = () => {
             </StickyNote>
           );
         })}
+      </div>
+
+      <div className="mt-8">
+        <WritingNow names={live.writers} />
       </div>
 
       <div className="mt-16 border-t border-dashed border-base-content/15 pt-6">

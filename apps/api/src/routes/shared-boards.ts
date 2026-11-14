@@ -13,10 +13,10 @@ import { db } from "../db";
 import { boardNotes, boardReports, boards } from "../db/board-schema";
 import { clientIp } from "../lib/client-ip";
 import { reporterFingerprint } from "../lib/fingerprint";
-import { announce, fromOwnSite, watch } from "../lib/live-boards";
+import { announce, doneWriting, fromOwnSite, readLiveRequest, watch } from "../lib/live-boards";
 import { validate } from "../lib/validate";
 import { rateLimit } from "../middleware/rate-limit";
-import { optionalUser, requireUser } from "../middleware/require-user";
+import { type AuthUser, optionalUser, requireUser } from "../middleware/require-user";
 
 const boardNotHere = () => new HTTPException(404, { message: "This board isn't here" });
 const noteNotFound = () => new HTTPException(404, { message: "Note not found" });
@@ -124,6 +124,7 @@ export const sharedBoardsRoute = new Hono()
       if (!note) {
         throw new HTTPException(409, { message: "You already have a note on this board" });
       }
+      doneWriting(board.id, user.id);
       announce(board.id);
       return c.json(note, 201);
     },
@@ -187,23 +188,31 @@ export const sharedBoardsRoute = new Hono()
 
   //websocket......
   //the live line. the page opens it once and keeps it open
-  //whenever a note comes, goes or is hidden, the server says "changed" down it, and the page fetches again
   .get(
     "/:token/live",
+    optionalUser,
     validate("param", ShareTokenSchema),
     upgradeWebSocket(async (c) => {
       if (!fromOwnSite(c.req.header("origin"))) {
         throw new HTTPException(403, { message: "Live updates only work on shareNcare itself" });
       }
 
+      const viewer: AuthUser | null = c.get("user");
       const board = await findBoard(c.req.param("token") ?? "");
-      let stopWatching = () => {};
+      let line: ReturnType<typeof watch> | undefined;
 
       return {
         onOpen: (_event, socket) => {
-          stopWatching = watch(board.id, socket);
+          line = watch(
+            board.id,
+            socket,
+            viewer && { id: viewer.id, firstName: firstName(viewer.name) },
+          );
         },
-        onClose: () => stopWatching(),
+        onMessage: (event) => {
+          if (readLiveRequest(event.data)?.type === "writing") line?.writing();
+        },
+        onClose: () => line?.leave(),
       };
     }),
   );
