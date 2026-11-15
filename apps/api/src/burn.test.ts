@@ -33,7 +33,12 @@ describe("burn after reading", () => {
 
     for (const _visit of [1, 2, 3]) {
       const res = await look(token);
-      expect(Object.keys(await res.json()).sort()).toEqual(["from", "recipient", "state"]);
+      expect(Object.keys(await res.json()).sort()).toEqual([
+        "from",
+        "locked",
+        "recipient",
+        "state",
+      ]);
     }
 
     expect((await open(token)).status).toBe(200);
@@ -102,7 +107,7 @@ describe("sealed letters", () => {
 
     const body = await (await look(token)).json();
 
-    expect(Object.keys(body).sort()).toEqual(["from", "recipient", "state", "unsealAt"]);
+    expect(Object.keys(body).sort()).toEqual(["from", "locked", "recipient", "state", "unsealAt"]);
     expect(JSON.stringify(body)).not.toContain("secret");
   });
 

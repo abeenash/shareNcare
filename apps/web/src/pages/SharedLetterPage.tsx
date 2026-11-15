@@ -1,13 +1,14 @@
-import { FlameIcon, LockIcon, MailQuestionIcon } from "lucide-react";
+import { FlameIcon, KeyRoundIcon, LockIcon, MailQuestionIcon } from "lucide-react";
 import { useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import BurningLetter from "../components/BurningLetter";
 import Envelope from "../components/Envelope";
 import Letter from "../components/Letter";
 import Loader from "../components/Loader";
 import Logo from "../components/Logo";
+import { keyFromLink } from "../lib/key-from-link";
 import { addressedTo, formatMoment, formatPostmark } from "../lib/utils";
-import { useOpenLetter, useSharedLetter } from "../note-queries";
+import { useOpenLetter, useSharedLetter, useUnlockedWords } from "../note-queries";
 
 const LetterFooter = ({ recipient, from }: { recipient: string | null; from: string }) => (
   <div className="flex flex-wrap justify-between gap-2 font-mono text-xs uppercase tracking-widest text-base-content/50">
@@ -16,7 +17,73 @@ const LetterFooter = ({ recipient, from }: { recipient: string | null; from: str
   </div>
 );
 
+type Addressed = { recipient: string | null; from: string };
+
+type ReadableLetterProps = {
+  letter: {
+    title: string;
+    description: string;
+    createdAt: string;
+    locked: boolean;
+    photo?: string | null;
+  };
+  linkKey: string | null;
+  envelope: Addressed;
+};
+
+// Shows a letter's words. Locked words are unlocked first, with the key that came
+// in the link. The server only ever handed over the locked box.
+const ReadableLetter = ({ letter, linkKey, envelope }: ReadableLetterProps) => {
+  const unlocked = useUnlockedWords(letter.locked ? letter.description : undefined, linkKey);
+
+  if (letter.locked && !linkKey) return <MissingKey {...envelope} />;
+  if (letter.locked && unlocked.isError) {
+    return (
+      <Envelope
+        icon={<KeyRoundIcon className="size-8" />}
+        heading="This key doesn't fit"
+        {...envelope}
+      >
+        <p>The key in this link doesn't open this letter. Ask {envelope.from} to send it again.</p>
+      </Envelope>
+    );
+  }
+  if (letter.locked && unlocked.data === undefined) {
+    return (
+      <div className="flex justify-center py-10">
+        <Loader />
+      </div>
+    );
+  }
+
+  return (
+    <Letter
+      date={new Date(letter.createdAt)}
+      title={letter.title}
+      body={unlocked.data ?? letter.description}
+      photoUrl={letter.photo}
+      footer={<LetterFooter {...envelope} />}
+    />
+  );
+};
+
+const MissingKey = (envelope: Addressed) => (
+  <Envelope
+    icon={<KeyRoundIcon className="size-8" />}
+    heading="This letter is locked"
+    {...envelope}
+  >
+    <p>
+      Its key travels in the link, after the "#", and this link doesn't have one. Ask{" "}
+      {envelope.from} to send you the whole link.
+    </p>
+  </Envelope>
+);
+
 const SharedLetter = ({ token }: { token: string }) => {
+  // The key, if this letter is locked. It is read here, in the browser:
+  // the part after "#" never travelled to the server.
+  const linkKey = keyFromLink(useLocation().hash);
   const { data: letter, isPending, error } = useSharedLetter(token);
   const openLetter = useOpenLetter(token);
   const [burnedHere, setBurnedHere] = useState(false);
@@ -54,13 +121,7 @@ const SharedLetter = ({ token }: { token: string }) => {
   if (openLetter.data) {
     return (
       <BurningLetter onBurned={() => setBurnedHere(true)}>
-        <Letter
-          date={new Date(openLetter.data.createdAt)}
-          title={openLetter.data.title}
-          body={openLetter.data.description}
-          photoUrl={openLetter.data.photo}
-          footer={<LetterFooter {...envelope} />}
-        />
+        <ReadableLetter letter={openLetter.data} linkKey={linkKey} envelope={envelope} />
       </BurningLetter>
     );
   }
@@ -68,12 +129,10 @@ const SharedLetter = ({ token }: { token: string }) => {
   switch (letter.state) {
     case "open":
       return (
-        <Letter
-          date={new Date(letter.createdAt)}
-          title={letter.title}
-          body={letter.description}
-          photoUrl={letter.photoUrl}
-          footer={<LetterFooter {...envelope} />}
+        <ReadableLetter
+          letter={{ ...letter, photo: letter.photoUrl }}
+          linkKey={linkKey}
+          envelope={envelope}
         />
       );
     case "sealed":
@@ -93,6 +152,8 @@ const SharedLetter = ({ token }: { token: string }) => {
         </Envelope>
       );
     case "ready-to-burn":
+      // Burning without the key would erase words nobody can ever read. Don't offer it.
+      if (letter.locked && !linkKey) return <MissingKey {...envelope} />;
       return (
         <Envelope
           icon={<FlameIcon className="size-8" />}

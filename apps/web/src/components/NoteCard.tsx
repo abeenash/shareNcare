@@ -1,4 +1,12 @@
-import { CameraIcon, FlameIcon, LockIcon, PencilLineIcon, PinIcon, Trash2Icon } from "lucide-react";
+import {
+  CameraIcon,
+  FlameIcon,
+  KeyRoundIcon,
+  LockIcon,
+  PencilLineIcon,
+  PinIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Note } from "../api-client";
@@ -48,6 +56,8 @@ const NoteCard = ({ note }: NoteCardProps) => {
           <p className="line-clamp-3 text-base-content/70">
             {note.burnedAt ? (
               <span className="italic">The words are gone.</span>
+            ) : note.locked ? (
+              <span className="italic">Locked with a key. Open it to read.</span>
             ) : (
               <RichText text={note.description} />
             )}
@@ -58,6 +68,9 @@ const NoteCard = ({ note }: NoteCardProps) => {
               {note.burnedAt
                 ? `Burned · ${formatPostmark(new Date(note.burnedAt))}`
                 : addressedTo(note.recipient)}
+              {note.locked && (
+                <KeyRoundIcon className="size-3.5 text-primary" aria-label="Locked with a key" />
+              )}
               {note.photoKey && (
                 <CameraIcon className="size-3.5 text-primary" aria-label="Has a photo" />
               )}

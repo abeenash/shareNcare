@@ -1,9 +1,8 @@
-import { type NoteInput, NoteInputSchema } from "@sharencare/shared";
+import { MAX_DESCRIPTION, type NoteInput, NoteInputSchema } from "@sharencare/shared";
+import { LockIcon } from "lucide-react";
 import { type KeyboardEvent, type SubmitEvent, useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router";
-
-const MAX_DESCRIPTION = 5000;
 
 type NoteFormProps = {
   eyebrow: string;
@@ -11,6 +10,7 @@ type NoteFormProps = {
   submitLabel: string;
   isPending: boolean;
   cancelTo: string;
+  lockable?: boolean;
   onSubmit: (input: NoteInput) => void;
 };
 
@@ -20,11 +20,13 @@ const NoteForm = ({
   submitLabel,
   isPending,
   cancelTo,
+  lockable = false,
   onSubmit,
 }: NoteFormProps) => {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [recipient, setRecipient] = useState(initial?.recipient ?? "");
+  const [locked, setLocked] = useState(initial?.locked ?? false);
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +35,7 @@ const NoteForm = ({
       toast.error(result.error.issues[0]?.message ?? "Please check your note");
       return;
     }
-    onSubmit(result.data);
+    onSubmit({ ...result.data, locked });
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
@@ -100,6 +102,35 @@ const NoteForm = ({
           maxLength={MAX_DESCRIPTION}
           className="field-sizing-content min-h-48 w-full resize-none bg-transparent text-lg leading-8 caret-primary outline-none placeholder:text-base-content/25"
         />
+
+        {lockable ? (
+          <label className="mt-8 flex cursor-pointer items-start gap-3 rounded-box border border-base-content/10 p-4">
+            <input
+              type="checkbox"
+              className="toggle toggle-primary toggle-sm mt-0.5"
+              checked={locked}
+              onChange={(e) => setLocked(e.target.checked)}
+            />
+            <span>
+              <span className="flex items-center gap-2">
+                <LockIcon className="size-4 text-primary" />
+                Lock with a key
+              </span>
+              <span className="block text-sm text-base-content/60">
+                The words are locked in your browser before they are saved. shareNcare can't read
+                them, and neither can anyone without the key. Lose every copy of the key, and nobody
+                can open it again.
+              </span>
+            </span>
+          </label>
+        ) : (
+          locked && (
+            <p className="mt-8 flex items-center gap-2 text-sm text-primary">
+              <LockIcon className="size-4" />
+              Locked with a key. Your changes are locked again before they are saved.
+            </p>
+          )
+        )}
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-dashed border-base-content/15 pt-5">
           <span

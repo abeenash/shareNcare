@@ -1,23 +1,52 @@
 import { z } from "zod";
 
-export const NoteInputSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, "Title is required")
-    .max(120, "Title must be 120 characters or less"),
-  description: z
-    .string()
-    .trim()
-    .min(1, "Description is required")
-    .max(5000, "Description must be 5000 characters or less."),
-  recipient: z
-    .string()
-    .trim()
-    .max(60, "Name must be 60 characters or less")
-    .nullish()
-    .transform((name) => name || null),
-});
+export const MAX_DESCRIPTION = 5000;
+
+//4 characters for every 3 bytes
+export const LOCKED_BOX = /^v1\.[\w-]{16}\.[\w-]{23,}$/; //<- 20 characters in front = "v1."(3) + the 12-byte iv written as 16 characters
+export const MAX_LOCKED_BOX = 20 + Math.ceil(((MAX_DESCRIPTION * 3 + 16) * 4) / 3);
+
+//43 characters for 32 bytes, random bytes
+export const LETTER_KEY = /^[\w-]{43}$/;
+
+export const LetterKeysSchema = z.record(z.string(), z.string().regex(LETTER_KEY));
+export type LetterKeys = z.infer<typeof LetterKeysSchema>;
+
+export const NoteInputSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(1, "Title is required")
+      .max(120, "Title must be 120 characters or less"),
+    description: z.string().trim().min(1, "Description is required"),
+    recipient: z
+      .string()
+      .trim()
+      .max(60, "Name must be 60 characters or less")
+      .nullish()
+      .transform((name) => name || null),
+    locked: z.boolean().default(false),
+  })
+  .superRefine((note, ctx) => {
+    if (!note.locked && note.description.length > MAX_DESCRIPTION) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["description"],
+        message: `Description must be ${MAX_DESCRIPTION} characters or less.`,
+      });
+    }
+    if (
+      note.locked &&
+      (!LOCKED_BOX.test(note.description) || note.description.length > MAX_LOCKED_BOX)
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["description"],
+        message: "A locked letter must arrive locked",
+      });
+    }
+  });
 
 export type NoteInput = z.infer<typeof NoteInputSchema>;
 

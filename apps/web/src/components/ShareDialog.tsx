@@ -1,7 +1,8 @@
-import { CopyIcon, FlameIcon, LockIcon, SendIcon } from "lucide-react";
+import { CopyIcon, FlameIcon, KeyRoundIcon, LockIcon, SendIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import type { Note } from "../api-client";
+import { letterKeyFor } from "../lib/letter-keys";
 import { formatMoment } from "../lib/utils";
 import { useShareNote, useUnshareNote } from "../note-queries";
 import SealClock from "./SealClock";
@@ -27,7 +28,12 @@ const ShareDialog = ({ note, open, onClose }: ShareDialogProps) => {
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
-  const link = note.shareToken ? `${window.location.origin}/s/${note.shareToken}` : null;
+  const key = note.locked ? letterKeyFor(note.id) : null;
+  const missingKey = note.locked && !key;
+  const link =
+    note.shareToken && !missingKey
+      ? `${window.location.origin}/s/${note.shareToken}${key ? `#${key}` : ""}`
+      : null;
   const canSend = "share" in navigator;
 
   const createLink = () => {
@@ -52,11 +58,30 @@ const ShareDialog = ({ note, open, onClose }: ShareDialogProps) => {
       <div className="modal-box border border-base-content/10 bg-base-200">
         <h3 className="font-serif text-2xl">Share this letter</h3>
 
-        {link ? (
+        {missingKey ? (
+          <>
+            <p className="py-4 text-base-content/70">
+              This letter is locked, and this browser doesn't have its key. Open its key link here
+              first, then share it.
+            </p>
+            <div className="modal-action">
+              <button type="button" className="btn" onClick={onClose}>
+                Close
+              </button>
+            </div>
+          </>
+        ) : link ? (
           <>
             <p className="py-4 text-base-content/70">
               Anyone with this link can read it. No account needed.
             </p>
+            {note.locked && (
+              <p className="flex items-start gap-2 pb-2 text-sm text-primary">
+                <KeyRoundIcon className="mt-0.5 size-4 shrink-0" />
+                The key is in the link, after the #. Browsers never send that part to shareNcare, so
+                only people with the whole link can read it
+              </p>
+            )}
             {note.burnAfterReading && (
               <p className="flex items-center gap-2 pb-2 text-sm text-primary">
                 <FlameIcon className="size-4" />
