@@ -2,6 +2,7 @@ import type { ApiErrorBody, ApiErrorCode, NoteInput, ShareOptions } from "@share
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { api, type Note } from "./api-client";
+import { unlockWords } from "./lib/letter-lock";
 import { shrinkPhoto } from "./lib/shrink-photo";
 
 export class ApiError extends Error {
@@ -372,5 +373,15 @@ export function useRemovePhoto(id: string) {
     },
     onSuccess: (note) => cacheNote(queryClient, note),
     onError: (error) => toast.error(error.message),
+  });
+}
+
+export function useUnlockedWords(box: string | undefined, key: string | null) {
+  return useQuery({
+    queryKey: ["unlocked", box, key],
+    queryFn: () => unlockWords(box ?? "", key ?? ""),
+    enabled: Boolean(box && key),
+    retry: false,
+    staleTime: Number.POSITIVE_INFINITY,
   });
 }

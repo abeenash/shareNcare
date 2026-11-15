@@ -71,6 +71,13 @@
       "when": 1794496316521,
       "tag": "0009_note_authors",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794719919273,
+      "tag": "0010_locked_letters",
+      "breakpoints": true
     }
   ]
 }

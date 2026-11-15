@@ -84,6 +84,16 @@ export const notesRoute = new Hono()
     const user = c.get("user");
     const { id } = c.req.valid("param");
     const input = c.req.valid("json");
+    const [current] = await db
+      .select({ locked: notes.locked })
+      .from(notes)
+      .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned));
+    if (!current) throw noteNotFound();
+    if (current.locked !== input.locked) {
+      throw new HTTPException(409, {
+        message: "A letter can't be locked or unlocked once written",
+      });
+    }
     const [note] = await db
       .update(notes)
       .set(input)
@@ -171,11 +181,11 @@ export const notesRoute = new Hono()
       const user = c.get("user");
       const { id } = c.req.valid("param");
       const [note] = await db
-        .select({ id: notes.id })
+        .select({ id: notes.id, locked: notes.locked })
         .from(notes)
         .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned));
       if (!note) throw noteNotFound();
-
+      if (note.locked) throw badPhoto("A locked letter can't hold a photo yet");
       const key = `notes/${note.id}/${crypto.randomUUID()}`;
       return c.json({ key, uploadUrl: photos.uploadUrl(key) });
     },
@@ -192,11 +202,11 @@ export const notesRoute = new Hono()
       if (!key.startsWith(`notes/${id}/`)) throw badPhoto("That photo belongs to another letter");
 
       const [current] = await db
-        .select({ photoKey: notes.photoKey })
+        .select({ photoKey: notes.photoKey, locked: notes.locked })
         .from(notes)
         .where(and(eq(notes.id, id), ownedBy(user.id), notInTrash, notBurned));
       if (!current) throw noteNotFound();
-
+      if (current.locked) throw badPhoto("A locked letter can't hold a photo yet");
       const arrived = await photos.inspect(key);
       if (!arrived) throw badPhoto("That photo never finished uploading");
       if (!arrived.isJpeg || arrived.size > MAX_PHOTO_BYTES) {

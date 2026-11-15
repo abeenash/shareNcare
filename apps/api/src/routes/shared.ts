@@ -34,6 +34,7 @@ export const sharedRoute = new Hono()
         burnedAt: notes.burnedAt,
         unsealAt: notes.unsealAt,
         photoKey: notes.photoKey,
+        locked: notes.locked,
       })
       .from(notes)
       .innerJoin(user, eq(notes.userId, user.id))
@@ -44,6 +45,7 @@ export const sharedRoute = new Hono()
     const envelope = {
       recipient: letter.recipient,
       from: letter.senderName.split(" ")[0] ?? letter.senderName,
+      locked: letter.locked,
     };
 
     if (letter.burnedAt) {
@@ -80,6 +82,7 @@ export const sharedRoute = new Hono()
           description: notes.description,
           createdAt: notes.createdAt,
           photoKey: notes.photoKey,
+          locked: notes.locked,
         });
       if (!claimed) return null;
 
@@ -102,5 +105,6 @@ export const sharedRoute = new Hono()
       description: letter.description,
       createdAt: letter.createdAt,
       photo: letter.photo,
+      locked: letter.locked,
     });
   });

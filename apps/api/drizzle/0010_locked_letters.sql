@@ -1,0 +1,1 @@
+ALTER TABLE "notes" ADD COLUMN "locked" boolean DEFAULT false NOT NULL;
