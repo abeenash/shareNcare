@@ -53,6 +53,7 @@ export default defineConfig({
       STORAGE_ACCESS_KEY_ID: "e2e-access-key",
       STORAGE_SECRET_ACCESS_KEY: "e2e-secret-key-not-real",
       CRON_SECRET: cronSecret,
+      PASSWORD_BREACH_CHECK: "off",
     },
   },
 });

@@ -6,6 +6,7 @@ import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import * as schema from "../src/db/schema";
 import { TEST_CRON_SECRET } from "./cron-secret";
+import { fakeSendMail } from "./fake-mailbox";
 import { fakePhotos } from "./fake-photos";
 
 mock.module("../src/env", () => ({
@@ -13,6 +14,10 @@ mock.module("../src/env", () => ({
     CRON_SECRET: TEST_CRON_SECRET,
     BETTER_AUTH_SECRET: "test-only-auth-secret-0123456789abcdef",
     BETTER_AUTH_URL: "http://localhost:5173",
+    GOOGLE_CLIENT_ID: "test-google-id",
+    GOOGLE_CLIENT_SECRET: "test-google-secret",
+    EMAIL_CODES: "off",
+    PASSWORD_BREACH_CHECK: "off",
   },
 }));
 
@@ -32,6 +37,8 @@ await testDb.insert(schema.user).values([
 mock.module("../src/db", () => ({ db: testDb }));
 
 mock.module("../src/lib/photos", () => ({ photos: fakePhotos }));
+
+mock.module("../src/lib/mailer", () => ({ sendMail: fakeSendMail }));
 
 mock.module("../src/middleware/rate-limit", () => ({
   rateLimit: async (_c: Context, next: Next) => {
