@@ -8,6 +8,7 @@ import { timing } from "hono/timing";
 import { auth } from "./auth";
 import { ValidationError } from "./lib/validate";
 import { boardsRoute } from "./routes/boards";
+import { featuresRoute } from "./routes/features";
 import { healthRoute } from "./routes/health";
 import { internalRoute } from "./routes/internal";
 import { notesRoute } from "./routes/notes";
@@ -38,6 +39,7 @@ export const app = new Hono()
   .use(logger())
   .use(secureHeaders())
   .route("/health", healthRoute)
+  .route("/features", featuresRoute)
   .route("/notes", notesRoute)
   .route("/shared", sharedRoute)
   .route("/boards", boardsRoute)
