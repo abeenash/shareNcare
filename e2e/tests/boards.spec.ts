@@ -1,5 +1,5 @@
 import { type Browser, expect, type Page, test } from "@playwright/test";
-import { newRobot, signUp, uniqueTitle } from "./helpers";
+import { confirmEmail, fillSignUp, newRobot, signUp, uniqueTitle } from "./helpers";
 
 // A visitor is a separate browser with no account and no cookies.
 async function visitor(browser: Browser) {
@@ -57,11 +57,8 @@ test("a visitor reads freely, signs up from the board, and comes back to write",
   await asha.getByRole("link", { name: "Sign in to write a note" }).click();
   await expect(asha).toHaveURL(/\/login\?next=/);
   const robot = { ...newRobot(), name: "Asha Rai" };
-  await asha.getByRole("button", { name: "New here? Create an account" }).click();
-  await asha.getByLabel("Name").fill(robot.name);
-  await asha.getByLabel("Email").fill(robot.email);
-  await asha.getByLabel("Password").fill(robot.password);
-  await asha.getByRole("button", { name: "Sign up" }).click();
+  await fillSignUp(asha, robot);
+  await confirmEmail(asha, robot.email);
 
   await expect(asha).toHaveURL(link);
   await asha.getByRole("button", { name: "Post my note" }).click();
