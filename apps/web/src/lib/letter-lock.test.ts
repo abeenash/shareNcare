@@ -43,20 +43,21 @@ describe("locking and unlocking", () => {
   test("the wrong key opens nothing", async () => {
     const box = await lockWords(words, newLetterKey());
 
-    expect(unlockWords(box, newLetterKey())).rejects.toThrow();
+    await expect(unlockWords(box, newLetterKey())).rejects.toThrow();
   });
 
   test("changing even one character of the box is caught", async () => {
     const key = newLetterKey();
     const box = await lockWords(words, key);
-    const last = box.at(-1) === "A" ? "B" : "A";
-    const tampered = box.slice(0, -1) + last;
+    const middle = Math.floor(box.length / 2);
+    const swapped = box[middle] === "A" ? "B" : "A";
+    const tampered = box.slice(0, middle) + swapped + box.slice(middle + 1);
 
-    expect(unlockWords(tampered, key)).rejects.toThrow();
+    await expect(unlockWords(tampered, key)).rejects.toThrow();
   });
 
   test("something that is not a box is refused", async () => {
-    expect(unlockWords("Dear Didi", newLetterKey())).rejects.toThrow("not a locked letter");
+    await expect(unlockWords("Dear Didi", newLetterKey())).rejects.toThrow("not a locked letter");
   });
 });
 
