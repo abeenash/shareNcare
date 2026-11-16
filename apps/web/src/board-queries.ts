@@ -222,7 +222,7 @@ export function useReportNote(token: string) {
 }
 
 /* --------------- Live updates ------------------ */
-//since a websocket address starts with ws:// (or wss:// => https' site), so it should resolve to "https://sharencare.onrender.com" -> "wss://sharencare.onrender.com/api/shared-boards/<token>/live
+//since a websocket address starts with ws:// (or wss:// => https' site), so it should resolve to "https://sharencare.abinasha.com.np" -> "wss://sharencare.abinasha.com.np/api/shared-boards/<token>/live
 function liveAddress(token: string) {
   const address = new URL(`/api/shared-boards/${token}/live`, window.location.href);
   address.protocol = address.protocol === "https:" ? "wss:" : "ws:";

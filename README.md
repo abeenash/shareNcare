@@ -2,7 +2,7 @@
 
 **Notes meant to be given.** Write a note for yourself, or for someone you care about.
 
-🔗 **Live:** https://sharencare.onrender.com
+🔗 **Live:** https://sharencare.abinasha.com.np
 *(free hosting: the first visit can take up to a minute while the server wakes up)*
 
 ![ShareNCare desk](docs/desk.png)
