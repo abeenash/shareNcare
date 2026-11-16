@@ -2,6 +2,7 @@ import { serveStatic, websocket } from "@hono/bun";
 import { Hono } from "hono";
 import { app } from "./app";
 import { env } from "./env";
+import { redirectHome } from "./lib/home-address";
 import { sharedLetterPage } from "./link-preview";
 
 const website = new Hono()
@@ -21,6 +22,11 @@ export default {
   port: env.PORT,
   idleTimeout: 180,
   fetch: (request: Request, server: unknown) => {
+    if (env.NODE_ENV === "production") {
+      const moved = redirectHome(request);
+      if (moved) return moved;
+    }
+
     if (env.NODE_ENV === "production" && !isApiRequest(request)) {
       return website.fetch(request, server);
     }
