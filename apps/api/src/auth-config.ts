@@ -1,3 +1,4 @@
+import { CODE_MINUTES, MIN_PASSWORD_LENGTH } from "@sharencare/shared";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP, haveIBeenPwned } from "better-auth/plugins";
@@ -6,9 +7,6 @@ import * as schema from "./db/schema";
 import { env } from "./env";
 import { codeEmail } from "./lib/code-email";
 import { sendMail } from "./lib/mailer";
-
-export const CODE_MINUTES = 5;
-export const MIN_PASSWORD_LENGTH = 12;
 
 type Switches = {
   emailCodes: boolean;

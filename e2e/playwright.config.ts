@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { cronSecret, databaseUrl } from "./tests/e2e-env";
+import { cronSecret, databaseUrl, outboxDir } from "./tests/e2e-env";
 
 const PORT = 4000;
 const baseURL = `http://localhost:${PORT}`;
@@ -53,6 +53,9 @@ export default defineConfig({
       STORAGE_ACCESS_KEY_ID: "e2e-access-key",
       STORAGE_SECRET_ACCESS_KEY: "e2e-secret-key-not-real",
       CRON_SECRET: cronSecret,
+      EMAIL_CODES: "on",
+      MAIL_TRANSPORT: "file",
+      MAIL_OUTBOX_DIR: outboxDir,
       PASSWORD_BREACH_CHECK: "off",
     },
   },

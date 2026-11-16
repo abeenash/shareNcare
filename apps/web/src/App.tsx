@@ -5,6 +5,7 @@ import Loader from "./components/Loader";
 import RequireAuth from "./components/RequireAuth";
 import AuthPage from "./pages/AuthPage";
 import CreatePage from "./pages/CreatePage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import HomePage from "./pages/HomePage";
 import NoteEditPage from "./pages/NoteEditPage";
 import NoteReadPage from "./pages/NoteReadPage";
@@ -26,6 +27,7 @@ const App = () => {
       />
       <Routes>
         <Route path="/login" element={<AuthPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route
           path="/s/:token"
