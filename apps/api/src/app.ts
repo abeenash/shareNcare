@@ -11,6 +11,7 @@ import { boardsRoute } from "./routes/boards";
 import { featuresRoute } from "./routes/features";
 import { healthRoute } from "./routes/health";
 import { internalRoute } from "./routes/internal";
+import { meRoute } from "./routes/me";
 import { notesRoute } from "./routes/notes";
 import { sharedRoute } from "./routes/shared";
 import { sharedBoardsRoute } from "./routes/shared-boards";
@@ -40,6 +41,7 @@ export const app = new Hono()
   .use(secureHeaders())
   .route("/health", healthRoute)
   .route("/features", featuresRoute)
+  .route("/me", meRoute)
   .route("/notes", notesRoute)
   .route("/shared", sharedRoute)
   .route("/boards", boardsRoute)

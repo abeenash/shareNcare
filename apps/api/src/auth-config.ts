@@ -1,4 +1,4 @@
-import { CODE_MINUTES, MIN_PASSWORD_LENGTH } from "@sharencare/shared";
+import { CODE_MINUTES, MIN_PASSWORD_LENGTH, userFields } from "@sharencare/shared";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP, haveIBeenPwned } from "better-auth/plugins";
@@ -33,6 +33,7 @@ export function createAuth(switches: Switches = fromEnv) {
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(db, { provider: "pg", schema }),
+    user: { additionalFields: userFields },
     emailAndPassword: {
       enabled: true,
       minPasswordLength: MIN_PASSWORD_LENGTH,
