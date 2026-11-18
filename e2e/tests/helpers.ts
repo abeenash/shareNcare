@@ -36,6 +36,14 @@ export async function signUp(page: Page, robot: Robot) {
   await startSignUp(page, robot);
   await confirmEmail(page, robot.email);
   await expect(page.getByRole("heading", { name: "Your desk of letters" })).toBeVisible();
+  await skipTour(page);
+}
+
+export async function skipTour(page: Page) {
+  const saved = page.waitForResponse((res) => res.url().endsWith("/api/me/tour-seen"));
+  await page.getByRole("dialog").getByRole("button", { name: "Skip" }).click();
+  expect((await saved).status()).toBe(204);
+  await expect(page.getByRole("dialog")).toBeHidden();
 }
 
 export const uniqueTitle = (label: string) => `${label} ${crypto.randomUUID().slice(0, 8)}`;

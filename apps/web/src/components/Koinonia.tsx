@@ -1,0 +1,76 @@
+type KoinoniaProps = {
+  className?: string;
+  sparks?: boolean;
+};
+
+const IVORY = "#F3EBDD";
+const SHADE = "#E2D6C2";
+const SLATE = "#3A4A6E";
+const INK = "#1A2440";
+const SEAL = "#F08A4B";
+
+const Koinonia = ({ className, sparks = true }: KoinoniaProps) => (
+  <svg viewBox="0 0 128 128" className={className} aria-hidden="true">
+    <g fill={IVORY}>
+      <path d="M35 92C25 98 12 99 3 92c9-6 21-6 32-4z" />
+      <path d="M60 24c-5-9 0-18 11-19-5 6-6 13-5 21z" />
+    </g>
+    <path
+      d="M9 93c8 2 15 1 22-2"
+      fill="none"
+      stroke={SLATE}
+      strokeWidth="3"
+      strokeLinecap="round"
+    />
+    <path d="M57 26c-7-8-16-9-21-6 7 2 13 6 17 11z" fill={SLATE} />
+    <path
+      fill={IVORY}
+      d="M64 20c18 0 32 13 32 30 0 6-1 10 1 15 7 8 10 20 6 30-6 13-22 17-39 17s-33-4-39-17c-4-10-1-22 6-30 2-5 1-9 1-15 0-17 14-30 32-30z"
+    />
+    <g fill={SHADE}>
+      <path d="M33 66c-12 8-15 27-5 38 6 5 15 4 18-1-8-7-12-21-13-37z" />
+      <path d="M95 66c12 8 15 27 5 38-6 5-15 4-18-1 8-7 12-21 13-37z" />
+    </g>
+    <g fill="none" stroke={INK} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M23 84l15-4-5 15" strokeWidth="2.6" />
+      <path d="M105 84l-15-4 5 15" strokeWidth="2.6" />
+      <path d="M44 41q4-3 8-1" strokeWidth="2" />
+      <path d="M75 38q4-2 8 1" strokeWidth="2" />
+    </g>
+    <g fill={INK}>
+      <ellipse cx="49" cy="50" rx="4.8" ry="5.8" />
+      <ellipse cx="79" cy="48" rx="4.8" ry="5.8" />
+      <path d="M58 57l12-3c1 0 1 1 1 1l-5 8c-1 1-2 1-3 0z" />
+    </g>
+    <g fill="#fff">
+      <circle cx="50.7" cy="48" r="1.7" />
+      <circle cx="80.7" cy="46" r="1.7" />
+    </g>
+    <path
+      fill={SEAL}
+      d="M64 74q4.5-2.4 6.4 2.3 5 1.1 3.4 6 3.2 4-1.1 6.7-.2 5.1-5.3 4.4-3.4 3.8-6.8 0-5.1.7-5.3-4.4-4.3-2.7-1.1-6.7-1.6-4.9 3.4-6Q59.5 71.6 64 74z"
+    />
+    <rect x="58" y="80" width="12" height="8.5" rx="1.6" fill="#C2532A" />
+    <path
+      d="M58.8 81l5.2 4 5.2-4"
+      fill="none"
+      stroke="#F7B48A"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <g fill="none" stroke="#7E89A3" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M54 110v6m-6 2 6-2 6 2" />
+      <path d="M74 110v6m-6 2 6-2 6 2" />
+    </g>
+    {sparks && (
+      <g stroke={SEAL} strokeWidth="3.2" strokeLinecap="round">
+        <path d="M99 30l4-8" />
+        <path d="M104 37l8-5" />
+        <path d="M105 45l9 1" />
+      </g>
+    )}
+  </svg>
+);
+
+export default Koinonia;

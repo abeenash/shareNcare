@@ -78,6 +78,13 @@
       "when": 1794719919273,
       "tag": "0010_locked_letters",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795002056762,
+      "tag": "0011_tour_seen",
+      "breakpoints": true
     }
   ]
 }

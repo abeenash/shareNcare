@@ -4,11 +4,13 @@ import { NavLink, useNavigate } from "react-router";
 import { authClient } from "../auth-client";
 import { useTrash } from "../note-queries";
 import ConnectGoogle from "./ConnectGoogle";
+import Koinonia from "./Koinonia";
 import Logo from "./Logo";
 import UserAvatar from "./UserAvatar";
 
 type SidebarProps = {
   onNavigate: () => void;
+  onReplayTour: () => void;
 };
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -16,7 +18,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-base-300 text-base-content" : "text-base-content/60 hover:text-base-content"
   }`;
 
-const Sidebar = ({ onNavigate }: SidebarProps) => {
+const Sidebar = ({ onNavigate, onReplayTour }: SidebarProps) => {
   const { data: session } = authClient.useSession();
   const { data: trashedNotes } = useTrash();
   const queryClient = useQueryClient();
@@ -37,7 +39,7 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
           <InboxIcon className="size-4" />
           Your desk
         </NavLink>
-        <NavLink to="/boards" className={navLinkClass} onClick={onNavigate}>
+        <NavLink to="/boards" className={navLinkClass} onClick={onNavigate} data-tour="boards">
           <StickyNoteIcon className="size-4" />
           Care boards
         </NavLink>
@@ -58,6 +60,14 @@ const Sidebar = ({ onNavigate }: SidebarProps) => {
             </div>
           </div>
           <ConnectGoogle />
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm justify-start w-full font-normal"
+            onClick={onReplayTour}
+          >
+            <Koinonia className="size-4" sparks={false} />
+            Take the tour again
+          </button>
           <button
             type="button"
             className="btn btn-ghost btn-sm justify-start w-full font-normal"
