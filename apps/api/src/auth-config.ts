@@ -6,6 +6,7 @@ import { db } from "./db";
 import * as schema from "./db/schema";
 import { env } from "./env";
 import { codeEmail } from "./lib/code-email";
+import { errorFields, log } from "./lib/log";
 import { sendMail } from "./lib/mailer";
 
 type Switches = {
@@ -25,13 +26,27 @@ export function createAuth(switches: Switches = fromEnv) {
     allowedAttempts: 3,
     storeOTP: "encrypted",
     async sendVerificationOTP({ email, otp, type }) {
-      await sendMail({ to: email, ...codeEmail(type, otp, CODE_MINUTES) });
+      try {
+        await sendMail({ to: email, ...codeEmail(type, otp, CODE_MINUTES) });
+      } catch (error) {
+        log("error", "email.failed", { kind: type, error: errorFields(error) });
+        throw error;
+      }
     },
   });
 
   return betterAuth({
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
+    logger: {
+      log: (level, message, ...details) =>
+        log(level === "debug" ? "info" : level, "auth", {
+          message,
+          details: details.map((detail) =>
+            detail instanceof Error ? errorFields(detail) : detail,
+          ),
+        }),
+    },
     database: drizzleAdapter(db, { provider: "pg", schema }),
     user: { additionalFields: userFields },
     emailAndPassword: {

@@ -1,6 +1,7 @@
 import { and, eq, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import { notes } from "../db/schema";
+import { errorFields, log } from "./log";
 import { photos } from "./photos";
 
 //one letter, all or nothing. The DELETE locks the row. So, a Restore that arrives now has to wait. If storage fails, the error undoes the DELETE: the letter stays in the trash, so it is still on the to-do list for the next try.
@@ -26,7 +27,7 @@ export async function destroyNotes(ids: string[], stillAllowed: SQL | undefined)
       if (await destroyNote(id, stillAllowed)) destroyed++;
     } catch (error) {
       failed++;
-      console.error(`Could not destroy note ${id}`, error);
+      log("error", "note.destory_failed", { noteId: id, error: errorFields(error) });
     }
   }
   return { destroyed, failed };

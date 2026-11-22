@@ -2,6 +2,7 @@ import type { ApiErrorBody, ApiErrorCode, NoteInput, ShareOptions } from "@share
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { api, type Note } from "./api-client";
+import { withRef } from "./lib/error-ref";
 import { unlockWords } from "./lib/letter-lock";
 import { shrinkPhoto } from "./lib/shrink-photo";
 
@@ -10,7 +11,8 @@ export class ApiError extends Error {
   code: ApiErrorCode | undefined;
 
   constructor(status: number, body: ApiErrorBody | undefined) {
-    super(body?.error.message ?? `Request failed with status ${status}`);
+    const words = body?.error.message ?? `Request failed with status ${status}`;
+    super(withRef(words, status, body?.error.requestId));
     this.status = status;
     this.code = body?.error.code;
   }
