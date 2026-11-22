@@ -1,12 +1,14 @@
 import type { ApiErrorBody, ApiErrorCode, ApiIssue } from "@sharencare/shared";
 import { Hono } from "hono";
+import { contextStorage } from "hono/context-storage";
 import { HTTPException } from "hono/http-exception";
-import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
 import { auth } from "./auth";
+import { errorFields, log } from "./lib/log";
 import { ValidationError } from "./lib/validate";
+import { requestLog } from "./middleware/request-log";
 import { boardsRoute } from "./routes/boards";
 import { featuresRoute } from "./routes/features";
 import { healthRoute } from "./routes/health";
@@ -35,9 +37,10 @@ const codeForStatus: Record<number, ApiErrorCode> = {
 
 export const app = new Hono()
   .basePath("/api")
+  .use(contextStorage())
   .use(requestId())
+  .use(requestLog)
   .use(timing())
-  .use(logger())
   .use(secureHeaders())
   .route("/health", healthRoute)
   .route("/features", featuresRoute)
@@ -69,7 +72,7 @@ app.onError((err, c) => {
     return c.json(errorBody(code, err.message, c.get("requestId")), err.status);
   }
 
-  console.error(`[${id}]`, err);
+  log("error", "crash", { error: errorFields(err) });
   return c.json(errorBody("INTERNAL", "Something went wrong", id), 500);
 });
 

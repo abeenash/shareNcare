@@ -6,6 +6,7 @@ import { HTTPException } from "hono/http-exception";
 import { endTime, startTime } from "hono/timing";
 import { env } from "../env";
 import { clientIp } from "../lib/client-ip";
+import { errorFields, log } from "../lib/log";
 
 const redis = new Redis({
   url: env.UPSTASH_REDIS_REST_URL,
@@ -28,7 +29,7 @@ export const rateLimit = createMiddleware(async (c, next) => {
   if (env.RATE_LIMIT === "off") return next();
   startTime(c, "ratelimit", "Upstash rate limit");
   const result = await ratelimit.limit(clientIp(c)).catch((error: unknown) => {
-    console.warn("Rate limiter unavailable, letting the request through:", error);
+    log("warn", "ratelimit.unavailable", { error: errorFields(error) });
     return null;
   });
   endTime(c, "ratelimit");

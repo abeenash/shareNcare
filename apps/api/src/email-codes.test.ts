@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { eq } from "drizzle-orm";
 import { testClient } from "hono/testing";
+import { captureLogs } from "../test/capture-logs";
 import { lastCodeFor, mailsTo, outage } from "../test/fake-mailbox";
 import { app } from "./app";
 import { createAuth } from "./auth-config";
@@ -156,6 +157,20 @@ describe("signing up with email codes on", () => {
       otp: lastCodeFor(email),
     });
     expect(verified.status).toBe(200);
+  });
+
+  test("a failed email is logged loudly, as JSON, without the address", async () => {
+    const email = newEmail();
+    const logs = captureLogs();
+    outage.on = true;
+    await signUp(withCodes, email).finally(() => {
+      outage.on = false;
+      logs.stop();
+    });
+
+    const failed = logs.entries().find((entry) => entry.event === "email.failed");
+    expect(failed).toMatchObject({ level: "error", kind: "email-verification" });
+    expect(logs.lines.join("\n")).not.toContain(email);
   });
 });
 
