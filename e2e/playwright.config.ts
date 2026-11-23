@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { cronSecret, databaseUrl, outboxDir } from "./tests/e2e-env";
+import { cronSecret, databaseUrl, outboxDir, SENTRY_PORT, sentryDsn } from "./tests/e2e-env";
 
 const PORT = 4000;
 const baseURL = `http://localhost:${PORT}`;
@@ -31,32 +31,41 @@ export default defineConfig({
       dependencies: ["setup"],
     },
   ],
-  webServer: {
-    command: "bun run build && bun run start",
-    cwd: "..",
-    url: `${baseURL}/api/health`,
-    reuseExistingServer: !isCI,
-    timeout: 120_000,
-    env: {
-      NODE_ENV: "production",
-      PORT: String(PORT),
-      DATABASE_URL: databaseUrl,
-      BETTER_AUTH_URL: baseURL,
-      BETTER_AUTH_SECRET: "e2e-only-secret-that-guards-nothing-real-0123456789",
-      GOOGLE_CLIENT_ID: "not-used-in-e2e",
-      GOOGLE_CLIENT_SECRET: "not-used-in-e2e",
-      UPSTASH_REDIS_REST_URL: "https://not-used-in-e2e.invalid",
-      UPSTASH_REDIS_REST_TOKEN: "not-used-in-e2e",
-      RATE_LIMIT: "off",
-      STORAGE_ENDPOINT: "http://localhost:9000",
-      STORAGE_BUCKET: "sharencare-e2e",
-      STORAGE_ACCESS_KEY_ID: "e2e-access-key",
-      STORAGE_SECRET_ACCESS_KEY: "e2e-secret-key-not-real",
-      CRON_SECRET: cronSecret,
-      EMAIL_CODES: "on",
-      MAIL_TRANSPORT: "file",
-      MAIL_OUTBOX_DIR: outboxDir,
-      PASSWORD_BREACH_CHECK: "off",
+  webServer: [
+    {
+      command: "bun scripts/fake-sentry.ts",
+      url: `http://localhost:${SENTRY_PORT}`,
+      reuseExistingServer: !isCI,
     },
-  },
+    {
+      command: "bun run build && bun run start",
+      cwd: "..",
+      url: `${baseURL}/api/health`,
+      reuseExistingServer: !isCI,
+      timeout: 120_000,
+      env: {
+        NODE_ENV: "production",
+        PORT: String(PORT),
+        DATABASE_URL: databaseUrl,
+        BETTER_AUTH_URL: baseURL,
+        BETTER_AUTH_SECRET: "e2e-only-secret-that-guards-nothing-real-0123456789",
+        GOOGLE_CLIENT_ID: "not-used-in-e2e",
+        GOOGLE_CLIENT_SECRET: "not-used-in-e2e",
+        UPSTASH_REDIS_REST_URL: "https://not-used-in-e2e.invalid",
+        UPSTASH_REDIS_REST_TOKEN: "not-used-in-e2e",
+        RATE_LIMIT: "off",
+        STORAGE_ENDPOINT: "http://localhost:9000",
+        STORAGE_BUCKET: "sharencare-e2e",
+        STORAGE_ACCESS_KEY_ID: "e2e-access-key",
+        STORAGE_SECRET_ACCESS_KEY: "e2e-secret-key-not-real",
+        CRON_SECRET: cronSecret,
+        EMAIL_CODES: "on",
+        MAIL_TRANSPORT: "file",
+        MAIL_OUTBOX_DIR: outboxDir,
+        PASSWORD_BREACH_CHECK: "off",
+        SENTRY_DSN: sentryDsn,
+        VITE_SENTRY_DSN: sentryDsn,
+      },
+    },
+  ],
 });

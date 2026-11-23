@@ -7,9 +7,14 @@ import "@fontsource-variable/fraunces";
 import "@fontsource-variable/fraunces/wght-italic.css";
 import "@fontsource-variable/jetbrains-mono";
 import "./index.css";
+import * as Sentry from "@sentry/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
+import CrashScreen from "./components/CrashScreen";
+import { startErrorTracking } from "./lib/error-tracking";
 import { ApiError } from "./note-queries";
+
+startErrorTracking();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,11 +35,13 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-        <Toaster />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <Sentry.ErrorBoundary fallback={<CrashScreen />}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+          <Toaster />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </Sentry.ErrorBoundary>
   </StrictMode>,
 );

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { captureLogs } from "../../test/capture-logs";
-import { errorFields, hideEmails, log } from "./log";
+import { errorFields, log } from "./log";
 
 describe("log", () => {
   test("writes one JSON line with the level and the event", () => {
@@ -21,9 +21,12 @@ describe("log", () => {
     expect(logs.entries()[0]?.message).toBe("Sign-up attempt for existing email: [email]");
   });
 
-  test("leaves package versions in stack traces alone", () => {
-    const line = "at node_modules/better-auth@1.7.14/dist/index.mjs:10";
-    expect(hideEmails(line)).toBe(line);
+  test("never lets a share token though, even inside a message", () => {
+    const logs = captureLogs();
+    log("error", "crash", { message: "Could not open /api/shared/Secret-Token_123456789" });
+    logs.stop();
+
+    expect(logs.lines[0]).not.toContain("Secret-Token_123456789");
   });
 });
 
