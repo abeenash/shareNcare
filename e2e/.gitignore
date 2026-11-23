@@ -2,3 +2,4 @@
 /playwright-report/
 /playwright/.auth/
 /playwright/outbox/
+/playwright/sentry-inbox/

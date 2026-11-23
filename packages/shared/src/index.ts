@@ -1,6 +1,7 @@
 export * from "./auth";
 export * from "./boards";
 export * from "./notes";
+export * from "./scrub";
 
 export const APP_NAME = "shareNcare";
 

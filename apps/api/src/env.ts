@@ -24,6 +24,7 @@ const EnvSchema = z
     MAIL_FROM: z.string().min(1).optional(),
     RESEND_API_KEY: z.string().min(1).optional(),
     PASSWORD_BREACH_CHECK: z.enum(["on", "off"]).default("on"),
+    SENTRY_DSN: z.url().optional(),
   })
   .superRefine((env, ctx) => {
     const problem = (path: string, message: string) =>

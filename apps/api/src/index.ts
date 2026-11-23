@@ -2,8 +2,11 @@ import { serveStatic, websocket } from "@hono/bun";
 import { Hono } from "hono";
 import { app } from "./app";
 import { env } from "./env";
+import { startErrorTracking } from "./lib/error-tracking";
 import { redirectHome } from "./lib/home-address";
 import { sharedLetterPage } from "./link-preview";
+
+startErrorTracking();
 
 const website = new Hono()
   .get("/s/:token", async (c) => c.html(await sharedLetterPage(c.req.param("token"))))

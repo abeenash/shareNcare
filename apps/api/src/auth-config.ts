@@ -6,6 +6,7 @@ import { db } from "./db";
 import * as schema from "./db/schema";
 import { env } from "./env";
 import { codeEmail } from "./lib/code-email";
+import { trackError } from "./lib/error-tracking";
 import { errorFields, log } from "./lib/log";
 import { sendMail } from "./lib/mailer";
 
@@ -29,7 +30,7 @@ export function createAuth(switches: Switches = fromEnv) {
       try {
         await sendMail({ to: email, ...codeEmail(type, otp, CODE_MINUTES) });
       } catch (error) {
-        log("error", "email.failed", { kind: type, error: errorFields(error) });
+        trackError("email.failed", error, { kind: type });
         throw error;
       }
     },

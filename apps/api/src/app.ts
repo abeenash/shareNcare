@@ -6,7 +6,7 @@ import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
 import { auth } from "./auth";
-import { errorFields, log } from "./lib/log";
+import { trackError } from "./lib/error-tracking";
 import { ValidationError } from "./lib/validate";
 import { requestLog } from "./middleware/request-log";
 import { boardsRoute } from "./routes/boards";
@@ -72,7 +72,7 @@ app.onError((err, c) => {
     return c.json(errorBody(code, err.message, c.get("requestId")), err.status);
   }
 
-  log("error", "crash", { error: errorFields(err) });
+  trackError("crash", err);
   return c.json(errorBody("INTERNAL", "Something went wrong", id), 500);
 });
 
