@@ -33,10 +33,12 @@ describe("GET /api/health/db", () => {
 
   test("the plain health check never touches the database", async () => {
     const watched = spyOn(db, "execute");
-    const res = await app.request("/api/health");
-    watched.mockRestore();
-
-    expect(res.status).toBe(200);
-    expect(watched).not.toHaveBeenCalled();
+    try {
+      const res = await app.request("/api/health");
+      expect(res.status).toBe(200);
+      expect(watched).not.toHaveBeenCalled();
+    } finally {
+      watched.mockRestore();
+    }
   });
 });

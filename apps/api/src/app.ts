@@ -9,6 +9,7 @@ import { auth } from "./auth";
 import { trackError } from "./lib/error-tracking";
 import { ValidationError } from "./lib/validate";
 import { requestLog } from "./middleware/request-log";
+import { aiRoute } from "./routes/ai";
 import { boardsRoute } from "./routes/boards";
 import { featuresRoute } from "./routes/features";
 import { healthRoute } from "./routes/health";
@@ -49,7 +50,8 @@ export const app = new Hono()
   .route("/shared", sharedRoute)
   .route("/boards", boardsRoute)
   .route("/shared-boards", sharedBoardsRoute)
-  .route("/internal", internalRoute);
+  .route("/internal", internalRoute)
+  .route("/ai", aiRoute);
 
 app.on(["GET", "POST"], "/auth/*", (c) => auth.handler(c.req.raw));
 

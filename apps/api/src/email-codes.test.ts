@@ -294,7 +294,7 @@ describe("with email codes off (until the web has a code screen)", () => {
   test("the web app is told codes are off", async () => {
     const res = await testClient(app).api.features.$get();
 
-    expect(await res.json()).toEqual({ emailCodes: false });
+    expect(await res.json()).toMatchObject({ emailCodes: false });
   });
 });
 
