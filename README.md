@@ -19,6 +19,7 @@
 - **Letters worth sending:** share links, burn-after-reading, sealed letters, and private photos on Cloudflare R2
 - **Trash that cleans itself:** empty it any time, and letters left for 30 days are deleted along with their photos
 - **Care boards:** one link where friends add notes for someone; anyone can read, signed-in people write one note each, with reporting and owner moderation
+- **Watched in production:** one JSON log line per request (tokens never logged), Sentry error alerts from the server and the browser, an hourly uptime check and a heartbeat for the daily sweep
 
 **Coming next:** live boards with WebSockets.
 
@@ -129,6 +130,36 @@ Deployed on [Render](https://render.com) as **one web service**: the API serves 
 - **Start command:** `bun run start` (applies pending migrations, then starts the server)
 - **Environment:** the variables above, plus `NODE_ENV=production`, with `BETTER_AUTH_URL` set to the public URL
 - **Google OAuth:** add `https://<your-domain>/api/auth/callback/google` as a redirect URI
+
+### Monitoring
+
+| What | Where | Free limit |
+|---|---|---|
+| Request logs (JSON, one line per request) | Render → Logs | 7 days kept |
+| Error alerts, server and browser | [Sentry](https://sentry.io), email on a new issue | 5,000 errors a month |
+| Uptime: is the site up, does the database answer? | `.github/workflows/uptime.yml` every hour → [Healthchecks.io](https://healthchecks.io) | 20 checks |
+| The daily trash sweep ran | `.github/workflows/sweep-trash.yml` → Healthchecks.io | |
+
+Extra settings: on Render, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`; in GitHub → Settings → Secrets → Actions, `UPTIME_HEARTBEAT_URL` and `SWEEP_HEARTBEAT_URL` (ping URLs from Healthchecks.io).
+
+`GET /api/health` answers without touching the database. `GET /api/health/db` also asks the database, and answers `503` if it can't.
+
+## When something breaks
+
+Start from the email you got, then follow the row.
+
+| You got | Look here first | Usual cause and fix |
+|---|---|---|
+| **Uptime is down** (Healthchecks.io) | Open `/api/health`, then `/api/health/db` | `/api/health` fails: Render → Events (a failed deploy? out of free hours?). Only `/db` fails: Neon console (compute suspended after the monthly limit, or Neon is down) |
+| **Sweep failed or never ran** | GitHub → Actions → *Sweep old trash* | `401`: `CRON_SECRET` differs between GitHub and Render. No run at all: GitHub turns schedules off after 60 days without a commit; press *Enable workflow*. Re-run with *Run workflow* |
+| **A new Sentry issue** | The issue's `requestId` and `route` tags | Search the `requestId` in Render → Logs to see every line of that request |
+| **"Something went wrong (ref 3f9a1c2e)"** from a user | Render → Logs, search `3f9a1c2e` | The `crash` line holds the error and stack |
+| **Codes or emails don't arrive** | Render → Logs, search `email.failed` | Resend refused it (key, domain, or the 100-a-day free limit). Sign-up still "works", and the next sign-in sends a new code |
+| **Logs say `ratelimit.unavailable`** | Upstash console | Upstash is down. The app lets requests through on purpose, so nothing is broken for users |
+| **Photos fail, or `note.destroy_failed`** | Cloudflare R2 dashboard | R2 is down or the token expired. The letter stays in the trash, and the next sweep tries again |
+| **The deploy fails** | Render → the deploy's logs | `Invalid environment variables` names the missing one. The old version keeps running; Render can roll back |
+| **Google sign-in fails** | Google Cloud Console → Credentials | The redirect URI must be `https://<your-domain>/api/auth/callback/google`, matching `BETTER_AUTH_URL` |
+| **The first visit takes ~30 seconds** | Nothing | Render's free server sleeps after 15 minutes idle. Expected |
 
 ## History
 

@@ -2,7 +2,7 @@ name: Sweep old trash
 
 on: 
     schedule:
-        #Every day at 03:17 UTC. Off the hour, because Github is busiest on the hour.
+        #Every day at 03:17 UTC
         - cron: "17 3 * * *"
     workflow_dispatch:
 
@@ -13,6 +13,8 @@ jobs:
         name: Delete letters past their 30 days
         runs-on: ubuntu-latest
         timeout-minutes: 20
+        env:
+             HEARTBEAT_URL: ${{ secrets.SWEEP_HEARTBEAT_URL }}
         steps:
             - name: Ask the app to sweep
               env:
@@ -24,3 +26,11 @@ jobs:
                   --request POST
                   --header "Authorization: Bearer $CRON_SECRET"
                   https://sharencare.abinasha.com.np/api/internal/sweep-trash
+
+            - name: Tell the heartbeat monitor it worked
+              if: success() && env.HEARTBEAT_URL != ''
+              run: curl --fail --silent --show-error --retry 3 --max-time 10 "$HEARTBEAT_URL"
+
+            - name: Tell the heartbeat monitor it worked
+              if: failure() && env.HEARTBEAT_URL != ''
+              run: curl --fail --silent --show-error --retry 3 --max-time 10 "$HEARTBEAT_URL/fail"
