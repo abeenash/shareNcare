@@ -2,5 +2,5 @@ import { Hono } from "hono";
 import { env } from "../env";
 
 export const featuresRoute = new Hono().get("/", (c) =>
-  c.json({ emailCodes: env.EMAIL_CODES === "on" }),
+  c.json({ emailCodes: env.EMAIL_CODES === "on", aiHelp: env.AI_FEATURES === "on" }),
 );

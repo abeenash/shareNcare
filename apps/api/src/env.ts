@@ -25,6 +25,11 @@ const EnvSchema = z
     RESEND_API_KEY: z.string().min(1).optional(),
     PASSWORD_BREACH_CHECK: z.enum(["on", "off"]).default("on"),
     SENTRY_DSN: z.url().optional(),
+    AI_FEATURES: z.enum(["on", "off"]).default("off"),
+    AI_PROVIDER: z.enum(["fake", "cloudflare", "groq"]).default("fake"),
+    AI_MODEL: z.string().min(1).optional(),
+    AI_API_KEY: z.string().min(1).optional(),
+    CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
   })
   .superRefine((env, ctx) => {
     const problem = (path: string, message: string) =>
@@ -43,6 +48,14 @@ const EnvSchema = z
       env.MAIL_TRANSPORT === "console"
     ) {
       problem("MAIL_TRANSPORT", "Codes can't be printed to the logs in production");
+    }
+
+    if (env.AI_PROVIDER !== "fake") {
+      if (!env.AI_API_KEY) problem("AI_API_KEY", "Needed when AI_PROVIDER is a real one");
+      if (!env.AI_MODEL) problem("AI_MODEL", "Needed when AI_PROVIDER is a real one");
+    }
+    if (env.AI_PROVIDER === "cloudflare" && !env.CLOUDFLARE_ACCOUNT_ID) {
+      problem("CLOUDFLARE_ACCOUNT_ID", "Needed when AI_PROVIDER is cloudflare");
     }
   });
 

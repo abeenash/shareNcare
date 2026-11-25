@@ -5,7 +5,9 @@ import { migrate } from "drizzle-orm/pglite/migrator";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import * as schema from "../src/db/schema";
+import { createAiQuota } from "../src/lib/ai-quota";
 import { TEST_CRON_SECRET } from "./cron-secret";
+import { fakeAiLimiters } from "./fake-ai-quota";
 import { fakeSendMail } from "./fake-mailbox";
 import { fakePhotos } from "./fake-photos";
 
@@ -18,6 +20,8 @@ mock.module("../src/env", () => ({
     GOOGLE_CLIENT_SECRET: "test-google-secret",
     EMAIL_CODES: "off",
     PASSWORD_BREACH_CHECK: "off",
+    AI_FEATURES: "on",
+    AI_PROVIDER: "fake",
   },
 }));
 
@@ -39,6 +43,8 @@ mock.module("../src/db", () => ({ db: testDb }));
 mock.module("../src/lib/photos", () => ({ photos: fakePhotos }));
 
 mock.module("../src/lib/mailer", () => ({ sendMail: fakeSendMail }));
+
+mock.module("../src/lib/ai-quota-upstash", () => ({ aiQuota: createAiQuota(fakeAiLimiters) }));
 
 mock.module("../src/middleware/rate-limit", () => ({
   rateLimit: async (_c: Context, next: Next) => {
