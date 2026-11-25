@@ -1,0 +1,31 @@
+name: Uptime Check
+
+on:
+    schedule:
+        - cron: "41 * * * *"
+    workflow_dispatch:
+
+permissions: {}
+
+jobs:
+    check:
+        name: Is the site up, and does the database answer?
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        env:
+            HEARTBEAT_URL: ${{secrets.UPTIME_HEARTBEAT_URL}}
+        steps:
+            - name: Ask the database health check
+              run: >-
+                  curl --fail --silent --show-error
+                  --retry 3 --retry-all-errors --retry-delay 20
+                  --max-time 120
+                  https://sharencare.abinasha.com.np/api/health/db
+
+            - name: Tell the heartbeat monitor it worked
+              if: success() && env.HEARTBEAT_URL != ''
+              run: curl --fail --silent --show-error --retry 3 --max-time 10 "$HEARTBEAT_URL"
+
+            - name: Tell the heartbeat monitor it failed
+              if: failure() && env.HEARTBEAT_URL != ''
+              run: curl --fail --silent --show-error --retry 3 --max-time 10 "$HEARTBEAT_URL/fail"
