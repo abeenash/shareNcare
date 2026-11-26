@@ -12,7 +12,7 @@ import { notes } from "../db/schema";
 import { env } from "../env";
 import { ai } from "../lib/ai";
 import type { QuotaAnswer } from "../lib/ai-quota";
-import { aiQuota } from "../lib/ai-quota-upstash";
+import { aiQuota } from "../lib/ai-quota-store";
 import { trackError } from "../lib/error-tracking";
 import { cleanSuggestion, helpMeWriteMessages } from "../lib/help-me-write";
 import { log } from "../lib/log";

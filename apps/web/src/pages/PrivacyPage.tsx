@@ -11,7 +11,7 @@ const PrivacyPage = () => {
 
       <h1 className="mt-10 font-serif text-4xl">Privacy policy</h1>
       <p className="mt-2 font-mono text-xs uppercase tracking-widest text-base-content/60">
-        Last updated 12 Nov 2026
+        Last updated 26 Nov 2026
       </p>
 
       <div className="mt-10 space-y-8 leading-relaxed text-base-content/80">
@@ -64,6 +64,20 @@ const PrivacyPage = () => {
             When a burn-after-reading letter is opened, its words are erased from the app for good.
             Neon keeps a short restore history of the database for recovery, so an erased letter can
             remain there for a limited time before it is gone from that history too.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 font-serif text-2xl text-base-content">Help me write</h2>
+          <p>
+            When you press "Help me write", the draft you're writing is sent to an AI service
+            (Cloudflare Workers AI) to suggest a kinder, clearer version. It does not train its
+            models on your words or keep them. We don't keep your draft or the suggestion either:
+            nothing changes in your letter unless you choose "Use this". We only count how many
+            suggestions you used today, to keep the service free.
+          </p>
+          <p className="mt-3">
+            Letters locked with a key are never sent. The button disappears as soon as you lock one.
           </p>
         </section>
 
