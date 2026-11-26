@@ -20,3 +20,4 @@ export const HelpMeWriteSchema = z.object({
 
 export type HelpMeWriteInput = z.input<typeof HelpMeWriteSchema>;
 export type HelpMeWriteAnswer = { suggestion: string; remaining: number };
+export type AiQuota = { remaining: number; reset: number };

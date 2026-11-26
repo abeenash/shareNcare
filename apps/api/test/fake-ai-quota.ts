@@ -9,6 +9,10 @@ export function fakeLimiter(max: number) {
       if (quotaOutage.on) throw new Error("Upstash is down");
       return counter.limit(key);
     },
+    async getRemaining(key) {
+      if (quotaOutage.on) throw new Error("Upstash is down");
+      return counter.getRemaining(key);
+    },
   };
   return limiter;
 }

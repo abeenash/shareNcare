@@ -178,3 +178,44 @@ describe("POST /api/ai/help-me-write", () => {
     expect(await (await client.api.features.$get()).json()).toMatchObject({ aiHelp: true });
   });
 });
+
+describe("GET /api/ai/quota", () => {
+  const quota = (options?: typeof asBob) => client.api.ai.quota.$get(undefined, options);
+
+  test("a fresh day has all three, and says when they fill up again", async () => {
+    const res = await quota();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.remaining).toBe(3);
+    expect(body.reset % (24 * 60 * 60 * 1000)).toBe(0);
+    expect(body.reset).toBeGreaterThan(Date.now());
+  });
+
+  test("asking uses one, looking never does", async () => {
+    await quota();
+    await quota();
+    await ask({ text: DRAFT });
+
+    expect((await (await quota()).json()).remaining).toBe(2);
+    expect((await (await quota(asBob)).json()).remaining).toBe(3);
+  });
+
+  test("when everyone's budget is spent, you're told none are left", async () => {
+    fakeAiLimiters.everyone.used.set("all", 150);
+    expect((await (await quota()).json()).remaining).toBe(0);
+  });
+
+  test("if the counter is down, a friendly 503", async () => {
+    quotaOutage.on = true;
+    const logs = captureLogs();
+    try {
+      expect((await quota()).status).toBe(503);
+    } finally {
+      logs.stop();
+    }
+  });
+
+  test("signed out, nobody gets in", async () => {
+    expect((await quota(asNobody)).status).toBe(401);
+  });
+});

@@ -1,5 +1,8 @@
+import type { AiQuota } from "@sharencare/shared";
+
 export type Limiter = {
   limit(key: string): Promise<{ success: boolean; remaining: number; reset: number }>;
+  getRemaining(key: string): Promise<{ remaining: number; reset: number }>;
 };
 
 export type QuotaAnswer =
@@ -16,6 +19,14 @@ export function createAiQuota(limiters: { perPerson: Limiter; everyone: Limiter 
       if (!all.success) return { ok: false, who: "everyone", reset: all.reset };
 
       return { ok: true, remaining: mine.remaining };
+    },
+
+    async left(userId: string): Promise<AiQuota> {
+      const [mine, all] = await Promise.all([
+        limiters.perPerson.getRemaining(userId),
+        limiters.everyone.getRemaining("all"),
+      ]);
+      return { remaining: Math.min(mine.remaining, all.remaining), reset: mine.reset };
     },
   };
 }
