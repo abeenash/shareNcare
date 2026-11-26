@@ -8,6 +8,7 @@ type ChatRequest = {
   model: string;
   messages: ChatMessage[];
   maxTokens: number;
+  extra?: Record<string, unknown>;
 };
 
 const AnswerSchema = z.object({
@@ -23,14 +24,21 @@ const AnswerSchema = z.object({
 
 const ANSWER_TIME_LIMIT_MS = 30_000;
 
-export async function chatCompletion({ url, apiKey, model, messages, maxTokens }: ChatRequest) {
+export async function chatCompletion({
+  url,
+  apiKey,
+  model,
+  messages,
+  maxTokens,
+  extra,
+}: ChatRequest) {
   const res = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ model, messages, max_tokens: maxTokens }),
+    body: JSON.stringify({ ...extra, model, messages, max_tokens: maxTokens }),
     signal: AbortSignal.timeout(ANSWER_TIME_LIMIT_MS),
   });
 

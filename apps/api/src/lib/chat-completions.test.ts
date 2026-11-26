@@ -38,6 +38,23 @@ describe("chatCompletion", () => {
     expect(init?.signal).toBeInstanceOf(AbortSignal);
   });
 
+  test("adds a provider's own settings, but they can't replace ours", async () => {
+    const fetchSpy = provider(answer("Hi there"));
+    await chatCompletion({
+      ...request,
+      extra: {
+        chat_template_kwargs: {
+          enable_thinking: false,
+        },
+        model: "@cf/sneaky/model",
+      },
+    });
+    const [, init] = fetchSpy.mock.calls[0] ?? [];
+    const body = JSON.parse(String(init?.body));
+    expect(body.chat_template_kwargs).toEqual({ enable_thinking: false });
+    expect(body.model).toBe("@cf/test/model");
+  });
+
   test("returns the words of the first choice", async () => {
     provider(answer("Hi there"));
     expect(await chatCompletion(request)).toBe("Hi there");

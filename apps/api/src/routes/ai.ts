@@ -20,8 +20,8 @@ import { validate } from "../lib/validate";
 import { rateLimit } from "../middleware/rate-limit";
 import { requireUser } from "../middleware/require-user";
 
-const LOCKED = "Locked letters stay between you and the key, so Koinonia can't read them";
-const YOUR_LIMIT = `You've used your ${AI_DAILY_SUGGESTIONS} free suggestions for today. They come back at midnight UTC`;
+const LOCKED = "Locked letters stay between you and the key, so Koinonia can't read them.";
+const YOUR_LIMIT = `You've used your ${AI_DAILY_SUGGESTIONS} free suggestions for today. They come back at midnight UTC.`;
 const EVERYONE_LIMIT =
   "Koinonia has helped with all the letters it can for today. Please try again tomorrow.";
 const RESTING = "Koinonia is resting for a moment. Please try again in a few minutes.";

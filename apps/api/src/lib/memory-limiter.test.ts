@@ -1,8 +1,12 @@
-import { describe, expect, setSystemTime, test } from "bun:test";
+import { afterEach, describe, expect, setSystemTime, test } from "bun:test";
 import { memoryLimiter } from "./memory-limiter";
 
 const NOON_UTC = new Date("2026-11-25T12:00:00Z");
 const NEXT_MIDNIGHT_UTC = new Date("2026-11-26T00:00:00Z").getTime();
+
+afterEach(() => {
+  setSystemTime();
+});
 
 describe("memoryLimiter", () => {
   test("counts each key up to its limit, then says no", async () => {
