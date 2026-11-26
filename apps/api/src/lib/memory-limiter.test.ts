@@ -35,4 +35,17 @@ describe("memoryLimiter", () => {
     setSystemTime(new Date(NEXT_MIDNIGHT_UTC + 1000));
     expect((await limiter.limit("asha")).success).toBe(true);
   });
+
+  test("looking doesn't use one up", async () => {
+    setSystemTime(NOON_UTC);
+    const limiter = memoryLimiter(3);
+    expect(await limiter.getRemaining("asha")).toEqual({ remaining: 3, reset: NEXT_MIDNIGHT_UTC });
+    expect(await limiter.getRemaining("asha")).toEqual({ remaining: 3, reset: NEXT_MIDNIGHT_UTC });
+
+    await limiter.limit("asha");
+    expect((await limiter.getRemaining("asha")).remaining).toBe(2);
+
+    setSystemTime(new Date(NEXT_MIDNIGHT_UTC + 1000));
+    expect((await limiter.getRemaining("asha")).remaining).toBe(3);
+  });
 });

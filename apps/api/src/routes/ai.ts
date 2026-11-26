@@ -1,5 +1,6 @@
 import {
   AI_DAILY_SUGGESTIONS,
+  type AiQuota,
   type HelpMeWriteAnswer,
   HelpMeWriteSchema,
   LOCKED_BOX,
@@ -40,6 +41,18 @@ export const aiRoute = new Hono()
   })
   .use(rateLimit)
   .use(requireUser)
+
+  .get("/quota", async (c) => {
+    let quota: AiQuota;
+    try {
+      quota = await aiQuota.left(c.get("user").id);
+    } catch (error) {
+      trackError("ai.quota_unavailable", error);
+      throw new HTTPException(503, { message: RESTING });
+    }
+    return c.json(quota);
+  })
+
   .post("/help-me-write", validate("json", HelpMeWriteSchema), async (c) => {
     const { text, noteId } = c.req.valid("json");
     const userId = c.get("user").id;
