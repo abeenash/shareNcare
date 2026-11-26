@@ -1,16 +1,13 @@
 import type { Limiter } from "../src/lib/ai-quota";
-
-const tomorrowUtc = () => (Math.floor(Date.now() / 86_400_000) + 1) * 86_400_000;
+import { memoryLimiter } from "../src/lib/memory-limiter";
 
 export function fakeLimiter(max: number) {
-  const used = new Map<string, number>();
+  const counter = memoryLimiter(max);
   const limiter: Limiter & { used: Map<string, number> } = {
-    used,
+    used: counter.used,
     async limit(key) {
       if (quotaOutage.on) throw new Error("Upstash is down");
-      const count = (used.get(key) ?? 0) + 1;
-      used.set(key, count);
-      return { success: count <= max, remaining: Math.max(0, max - count), reset: tomorrowUtc() };
+      return counter.limit(key);
     },
   };
   return limiter;

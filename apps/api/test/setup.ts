@@ -44,7 +44,7 @@ mock.module("../src/lib/photos", () => ({ photos: fakePhotos }));
 
 mock.module("../src/lib/mailer", () => ({ sendMail: fakeSendMail }));
 
-mock.module("../src/lib/ai-quota-upstash", () => ({ aiQuota: createAiQuota(fakeAiLimiters) }));
+mock.module("../src/lib/ai-quota-store", () => ({ aiQuota: createAiQuota(fakeAiLimiters) }));
 
 mock.module("../src/middleware/rate-limit", () => ({
   rateLimit: async (_c: Context, next: Next) => {

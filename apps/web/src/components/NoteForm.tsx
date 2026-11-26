@@ -3,10 +3,13 @@ import { LockIcon } from "lucide-react";
 import { type KeyboardEvent, type SubmitEvent, useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router";
+import { useFeatures } from "../features-query";
+import HelpMeWrite from "./HelpMeWrite";
 
 type NoteFormProps = {
   eyebrow: string;
   initial?: NoteInput;
+  noteId?: string;
   submitLabel: string;
   isPending: boolean;
   cancelTo: string;
@@ -17,6 +20,7 @@ type NoteFormProps = {
 const NoteForm = ({
   eyebrow,
   initial,
+  noteId,
   submitLabel,
   isPending,
   cancelTo,
@@ -27,6 +31,7 @@ const NoteForm = ({
   const [description, setDescription] = useState(initial?.description ?? "");
   const [recipient, setRecipient] = useState(initial?.recipient ?? "");
   const [locked, setLocked] = useState(initial?.locked ?? false);
+  const { data: features } = useFeatures();
 
   const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -102,6 +107,10 @@ const NoteForm = ({
           maxLength={MAX_DESCRIPTION}
           className="field-sizing-content min-h-48 w-full resize-none bg-transparent text-lg leading-8 caret-primary outline-none placeholder:text-base-content/25"
         />
+
+        {features?.aiHelp && !locked && (
+          <HelpMeWrite text={description} noteId={noteId} onUse={setDescription} />
+        )}
 
         {lockable ? (
           <label className="mt-8 flex cursor-pointer items-start gap-3 rounded-box border border-base-content/10 p-4">

@@ -39,6 +39,7 @@ const EditNote = ({ note }: { note: Note }) => {
       <NoteForm
         eyebrow={`Editing · ${formatPostmark(new Date(note.createdAt))}`}
         initial={{ ...note, description: unlocked.data ?? note.description }}
+        noteId={note.id}
         submitLabel="Save changes"
         isPending={updateNote.isPending}
         cancelTo={`/note/${note.id}`}

@@ -65,6 +65,8 @@ export default defineConfig({
         PASSWORD_BREACH_CHECK: "off",
         SENTRY_DSN: sentryDsn,
         VITE_SENTRY_DSN: sentryDsn,
+        AI_FEATURES: "on",
+        AI_PROVIDER: "fake",
       },
     },
   ],
