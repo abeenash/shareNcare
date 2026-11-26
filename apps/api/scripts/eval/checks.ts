@@ -4,6 +4,7 @@ export type EvalCase = {
   keep?: string[];
   never?: string[];
   devanagari?: boolean;
+  mayShorten?: boolean;
 };
 
 const PREAMBLE = /^(sure|certainly|of course|here is|here's|i have rewritten)\b/i;
@@ -26,7 +27,9 @@ export function checkSuggestion(letter: EvalCase, answer: string | null): string
   for (const word of letter.never ?? []) {
     if (lower.includes(word.toLowerCase())) problems.push(`said "${word}"`);
   }
-  if (answer.length < letter.draft.length * 0.5) problems.push("far shorter than the letter");
+  if (!letter.mayShorten && answer.length < letter.draft.length * 0.5)
+    problems.push("far shorter than the letter");
+
   if (answer.length > Math.max(letter.draft.length * 2, 300)) {
     problems.push("far longer than the letter");
   }
