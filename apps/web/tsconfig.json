@@ -3,7 +3,7 @@
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "types": ["vite/client", "bun"]
+    "types": ["vite/client", "bun", "vite-plugin-pwa/react"]
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts", "pwa-assets.config.ts"]
 }

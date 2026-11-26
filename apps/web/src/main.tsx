@@ -11,6 +11,7 @@ import * as Sentry from "@sentry/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import CrashScreen from "./components/CrashScreen";
+import NewVersion from "./components/NewVersion";
 import { startErrorTracking } from "./lib/error-tracking";
 import { ApiError } from "./note-queries";
 
@@ -40,6 +41,7 @@ createRoot(rootElement).render(
         <BrowserRouter>
           <App />
           <Toaster />
+          <NewVersion />
         </BrowserRouter>
       </QueryClientProvider>
     </Sentry.ErrorBoundary>
