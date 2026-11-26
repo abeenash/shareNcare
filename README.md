@@ -159,6 +159,7 @@ Start from the email you got, then follow the row.
 | **Photos fail, or `note.destroy_failed`** | Cloudflare R2 dashboard | R2 is down or the token expired. The letter stays in the trash, and the next sweep tries again |
 | **The deploy fails** | Render → the deploy's logs | `Invalid environment variables` names the missing one. The old version keeps running; Render can roll back |
 | **Google sign-in fails** | Google Cloud Console → Credentials | The redirect URI must be `https://<your-domain>/api/auth/callback/google`, matching `BETTER_AUTH_URL` |
+| **"Help me write" fails, or Koinonia says it's resting** | Render → Logs, search `ai.failed` and `ai.quota_unavailable` | `answered 401/403`: the Cloudflare token was deleted or expired; make a new one and update `AI_API_KEY`. `answered 429`, or every suggestion fails late in the day: the free 10,000 Neurons ran out; they come back at 00:00 UTC. `ai.quota_unavailable`: Upstash is down, so suggestions are refused on purpose. Anything odd in the answers: set `AI_FEATURES=off` on Render and the button disappears |
 | **The first visit takes ~30 seconds** | Nothing | Render's free server sleeps after 15 minutes idle. Expected |
 
 ## History

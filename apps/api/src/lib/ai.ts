@@ -1,15 +1,15 @@
 import { env } from "../env";
+import {
+  CLOUDFLARE_EXTRA,
+  cloudflareChatUrl,
+  GROQ_CHAT_URL,
+  MAX_ANSWER_TOKENS,
+} from "./ai-providers";
 import { type ChatMessage, chatCompletion } from "./chat-completions";
 
 //for tests and e2e
 export const FAKE_SUGGESTION =
   "This is a practice suggestion from the fake model. A real AI would rewrite your letter here.";
-
-const MAX_ANSWER_TOKENS = 1000;
-
-const CLOUDFLARE_URL = (accountId: string) =>
-  `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/v1/chat/completions`;
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 export const ai = {
   async complete(messages: ChatMessage[]): Promise<string> {
@@ -23,9 +23,13 @@ export const ai = {
       case "fake":
         return FAKE_SUGGESTION;
       case "cloudflare":
-        return chatCompletion({ url: CLOUDFLARE_URL(env.CLOUDFLARE_ACCOUNT_ID ?? ""), ...shared });
+        return chatCompletion({
+          url: cloudflareChatUrl(env.CLOUDFLARE_ACCOUNT_ID ?? ""),
+          extra: CLOUDFLARE_EXTRA,
+          ...shared,
+        });
       case "groq":
-        return chatCompletion({ url: GROQ_URL, ...shared });
+        return chatCompletion({ url: GROQ_CHAT_URL, ...shared });
     }
   },
 };
